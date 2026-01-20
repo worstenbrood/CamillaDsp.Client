@@ -1,4 +1,4 @@
-[![.NET](https://github.com/worstenbrood/CamillaDsp.Client/actions/workflows/dotnet.yml/badge.svg)](https://github.com/worstenbrood/CamillaDsp.Client/actions/workflows/dotnet.yml)
+[![.NET](https://github.com/worstenbrood/CamillaDsp.Client/actions/workflows/dotnet.yml/badge.svg)](https://github.com/worstenbrood/CamillaDsp.Client/actions/workflows/dotnet.yml) [![Publish to nuget.org](https://github.com/worstenbrood/CamillaDsp.Client/actions/workflows/nuget.yml/badge.svg)](https://github.com/worstenbrood/CamillaDsp.Client/actions/workflows/nuget.yml)
 
 # CamillaDsp.Client
 
