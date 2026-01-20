@@ -24,7 +24,7 @@ namespace CamillaDsp.Client
                     var dspResult = element.Deserialize<DSPResult<T?>>();
                     if (dspResult?.Result != DSPResultStatus.Ok)
                     {
-                        throw new CamillaDspException(methodString, "Error");
+                        throw new CamillaDspException(method, "Error");
                     }
 
                     return dspResult.Value;
@@ -49,7 +49,7 @@ namespace CamillaDsp.Client
                     var dspResult = element.Deserialize<DSPResult<U?>>();
                     if (dspResult?.Result != DSPResultStatus.Ok)
                     {
-                        throw new CamillaDspException(methodString, "Error");
+                        throw new CamillaDspException(method, "Error");
                     }
 
                     return dspResult.Value;
@@ -74,7 +74,7 @@ namespace CamillaDsp.Client
                     var dspResult = element.Deserialize<DSPResult<T?>>();
                     if (dspResult?.Result != DSPResultStatus.Ok)
                     {
-                        throw new CamillaDspException(methodString, "Error");
+                        throw new CamillaDspException(method, "Error");
                     }
                 }
             }
