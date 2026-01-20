@@ -394,5 +394,40 @@ namespace CamillaDsp.Client
         /// <returns></returns>
         public async Task SetFaderVolume(float faderIndex, float volumeDb) => 
             await Set<object>(SetMethods.SetFaderVolume, new float[] {faderIndex, volumeDb});
+
+        /// <summary>
+        /// Special command for setting the volume when a Loudness filter is being combined with an external volume control 
+        /// (without a Volume filter). 
+        /// Clamped to the range -150 to +50 dB.
+        /// </summary>
+        /// <param name="faderIndex"></param>
+        /// <param name="volumeDb"></param>
+        /// <returns></returns>
+        public async Task SetFaderExternalVolume(float faderIndex, float volumeDb) => 
+            await Set<object>(SetMethods.SetFaderExternalVolume, new float[] {faderIndex, volumeDb });
+
+        /// <summary>
+        /// Change the volume setting by the given number of dB, positive or negative. 
+        /// The resulting volume is clamped to the range -150 to +50 dB. 
+        /// The allowed range can be reduced by providing two more values, for minimum and maximum.
+        /// </summary>
+        /// <param name="faderIndex"></param>
+        /// <param name="deltaDb"></param>
+        /// <returns></returns>
+        public async Task AdjustFaderVolume(int faderIndex, float deltaDb) => 
+            await Set<object>(SetMethods.AdjustFaderVolume, new object[] { faderIndex, deltaDb });
+
+        /// <summary>
+        /// Change the volume setting by the given number of dB, positive or negative. 
+        /// The resulting volume is clamped to the range -150 to +50 dB. 
+        /// The allowed range can be reduced by providing two more values, for minimum and maximum.
+        /// </summary>
+        /// <param name="faderIndex"></param>
+        /// <param name="deltaDb"></param>
+        /// <returns></returns>
+        public async Task AdjustFaderVolume(int faderIndex, float[] deltaDb)
+        {
+            await Set<object>(SetMethods.AdjustFaderVolume, new object[] { faderIndex, deltaDb });
+        }
     }
 }
