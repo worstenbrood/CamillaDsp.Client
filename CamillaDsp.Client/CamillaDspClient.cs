@@ -12,8 +12,6 @@ namespace CamillaDsp.Client
     /// </summary>
     public class CamillaDspClient : WebSocketClient
     {
-        
-
         /// <param name="url"></param>
         public CamillaDspClient(string url, bool connect = true) : base(url)
         {
