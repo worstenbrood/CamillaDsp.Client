@@ -429,5 +429,33 @@ namespace CamillaDsp.Client
         {
             await Set<object>(SetMethods.AdjustFaderVolume, new object[] { faderIndex, deltaDb });
         }
+
+        /// <summary>
+        /// Get the current mute setting.
+        /// </summary>
+        /// <param name="faderIndex"></param>
+        /// <returns></returns>
+        public async Task<bool?> GetFaderMute(int faderIndex) => 
+            await Get<int, bool>(GetMethods.GetFaderMute, faderIndex);
+
+        /// <summary>
+        /// Set muting to the given value.
+        /// </summary>
+        /// <param name="faderIndex"></param>
+        /// <param name="mute"></param>
+        /// <returns></returns>
+        public async Task SetFaderMute(int faderIndex, bool mute) => 
+            await Set<object>(SetMethods.SetFaderMute, new object[] { faderIndex, mute });
+
+        /// <summary>
+        /// Toggle muting.
+        /// </summary>
+        /// <param name="faderIndex"></param>
+        /// <returns></returns>
+        public async Task<bool?> ToggleFaderMute(int faderIndex) => 
+            (await Get<int, object[]>(GetMethods.ToggleFaderMute, faderIndex))?[1] as bool?;
+
+        public async Task<Fader[]?> GetFaders() => 
+            await Get<Fader[]>(GetMethods.GetFaders);
     }
 }
