@@ -6,26 +6,64 @@ namespace CamillaDsp.Client
 {
     public class CamillaDspClient(string url) : WebSocketClient(url)
     {
-        public async Task<string?> GetVersionAsync()
+        public async Task<T?> Get<T>(GetMethods method)
         {
-            var result = (await SendAsync<Models.Version>($"\"{Methods.GetVersion}\""));
-            if (result?.GetVersion?.Result == CDSPResultStatus.Ok)
-            { 
-                return result.GetVersion.Value;
+            var methodString = method.ToString();
+
+            await SendCommandAsync($"\"{methodString}\"");
+            var result = await ReceiveStringResultAsync();
+            if (result != null)
+            {
+                var json = JsonDocument.Parse(result);
+                if (json.RootElement.TryGetProperty(methodString, out var element))
+                {
+                    var dspResult = element.Deserialize<DSPResult<T?>>();
+                    if (dspResult?.Result != DSPResultStatus.Ok)
+                    {
+                        throw new CamillaDspException(methodString, "Error");
+                    }
+
+                    return dspResult.Value;
+                }
             }
 
-            throw new CamillaDspException(Methods.GetVersion, "Error");
+            return default;
+        }
+
+        public async Task Set<T>(SetMethods method, T value)
+        {
+            var methodString = method.ToString();
+            var data = new Dictionary<string, object?> { { methodString, value } };
+            await SendCommandAsync(data);
+            
+            var result = await ReceiveStringResultAsync();
+            if (result != null)
+            {
+                var json = JsonDocument.Parse(result);
+                if (json.RootElement.TryGetProperty(methodString, out var element))
+                {
+                    var dspResult = element.Deserialize<DSPResult<T?>>();
+                    if (dspResult?.Result != DSPResultStatus.Ok)
+                    {
+                        throw new CamillaDspException(methodString, "Error");
+                    }
+                }
+            }
+        }
+
+        public async Task<string?> GetVersionAsync()
+        {
+            return await Get<string>(GetMethods.GetVersion);
         }
 
         public async Task<int?> GetUpdateIntervalAsync()
         {
-            var result = (await SendAsync<Models.UpdateInterval>($"\"{Methods.GetUpdateInterval}\""));
-            if (result?.GetUpdateInterval?.Result == CDSPResultStatus.Ok)
-            {
-                return result.GetUpdateInterval.Value;
-            }
+            return await Get<int>(GetMethods.GetUpdateInterval);
+        }
 
-            throw new CamillaDspException(Methods.GetUpdateInterval, "Error");
+        public async Task SetUpdateIntervalAsync(int interval)
+        {
+            await Set<int>(SetMethods.SetUpdateInterval, interval);
         }
     }
 }

@@ -12,6 +12,7 @@ namespace CamillaDsp.Client
 {
     public abstract class WebSocketClient : IDisposable
     {
+        private readonly object _lock = new();
         private readonly Uri _uri;
         private readonly ClientWebSocket _webSocket = new();
         private readonly CancellationTokenSource _cancellationTokenSource = new();
@@ -34,7 +35,7 @@ namespace CamillaDsp.Client
             }
         }
 
-        private async Task SendCommandAsync(string message)
+        protected async Task SendStringCommandAsync(string message)
         {
             var sendBuffer = Encoding.UTF8.GetBytes(message);
             var sendSegment = new ArraySegment<byte>(sendBuffer);
@@ -43,18 +44,17 @@ namespace CamillaDsp.Client
             await _webSocket.SendAsync(sendSegment, WebSocketMessageType.Text, true, _cancellationTokenSource.Token);
         }
 
-        private async Task SendCommandAsync<T>(T message)
+        protected async Task SendCommandAsync<T>(T message)
         {
             var data = ModelTypes<T>.TypeCode switch
             {
                 TypeCode.Object => JsonSerializer.Serialize(message, _jsonSerializerOptions),
-                _ => Convert.ChangeType(message, TypeCode.String)
-            };
-
-            await SendCommandAsync(data);
+                _ => (string?)Convert.ChangeType(message, TypeCode.String)
+            } ?? throw new ArgumentException("Message cannot be null", nameof(message));
+            await SendStringCommandAsync(data);
         }
 
-        private async Task<string?> ReceiveResultAsync(int bufferSize = 4096)
+        protected async Task<string?> ReceiveStringResultAsync(int bufferSize = 4096)
         {
             var buffer = new byte[bufferSize];
             var segment = new ArraySegment<byte>(buffer);
@@ -83,10 +83,10 @@ namespace CamillaDsp.Client
 
             return null;
         }
-        
-        private async Task<T?> ReceiveResultAsync<T>(int bufferSize = 4096)
+
+        protected async Task<T?> ReceiveResultAsync<T>(int bufferSize = 4096)
         {
-            var result = await ReceiveResultAsync(bufferSize);
+            var result = await ReceiveStringResultAsync(bufferSize);
             if (result != null)
             {
                 return ModelTypes<T>.TypeCode switch

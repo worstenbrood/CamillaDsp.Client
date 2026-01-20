@@ -6,9 +6,14 @@ using System.Threading.Tasks;
 
 namespace CamillaDsp.Client
 {
-    public static class Methods
+    public enum GetMethods
     {
-        public const string GetVersion = "GetVersion";
-        public const string GetUpdateInterval = "GetUpdateInterval";
+        GetVersion,
+        GetUpdateInterval
+    }
+
+    public enum SetMethods
+    {
+        SetUpdateInterval
     }
 }

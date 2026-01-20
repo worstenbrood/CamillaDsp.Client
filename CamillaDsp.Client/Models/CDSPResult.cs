@@ -8,16 +8,16 @@ using System.Text.Json.Serialization;
 namespace CamillaDsp.Client.Models
 {
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    public enum CDSPResultStatus
+    public enum DSPResultStatus
     {
         Ok,
         Error
     }
 
-    public class CDSPResult<T>
+    public class DSPResult<T>
     {
         [JsonPropertyName("result")]
-        public CDSPResultStatus? Result { get; set; }
+        public DSPResultStatus? Result { get; set; }
 
         [JsonPropertyName("value")]
         public T? Value { get; set; }
