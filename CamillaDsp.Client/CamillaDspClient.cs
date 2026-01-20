@@ -10,10 +10,18 @@ namespace CamillaDsp.Client
     /// <summary>
     /// https://github.com/HEnquist/camilladsp/blob/master/websocket.md
     /// </summary>
-    /// <param name="url"></param>
-    public class CamillaDspClient(string url) : WebSocketClient(url)
+    public class CamillaDspClient : WebSocketClient
     {
         public SemaphoreSlim _semaphore = new (1, 1);
+
+        /// <param name="url"></param>
+        public CamillaDspClient(string url, bool connect = true) : base(url)
+        {
+            if (connect)
+            {
+                Connect().ConfigureAwait(false).GetAwaiter().GetResult();
+            }
+        }
 
         private static T? HandleResult<T>(string methodString, string result)
         {

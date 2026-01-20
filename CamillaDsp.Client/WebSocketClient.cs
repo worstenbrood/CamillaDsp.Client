@@ -15,18 +15,24 @@ namespace CamillaDsp.Client
         private readonly Uri _uri = new(url);
         private readonly ClientWebSocket _webSocket = new();
         private readonly CancellationTokenSource _cancellationTokenSource = new();
+        protected CancellationToken CancellationToken => _cancellationTokenSource.Token;
+        
         protected readonly JsonSerializerOptions JsonSerializerOptions = new()
         {
             WriteIndented = false,
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         };
 
-        public async Task Connect()
+        public async Task<WebSocketState> Connect()
         {
             if (_webSocket.State != WebSocketState.Open)
             {
-                await _webSocket.ConnectAsync(_uri, _cancellationTokenSource.Token);
+                var previousState = _webSocket.State;
+                await _webSocket.ConnectAsync(_uri, CancellationToken);
+                return previousState;
             }
+
+            return WebSocketState.Open;
         }
 
         protected async Task SendStringCommandAsync(string message)
@@ -35,7 +41,7 @@ namespace CamillaDsp.Client
             var sendSegment = new ArraySegment<byte>(sendBuffer);
             
             await Connect();
-            await _webSocket.SendAsync(sendSegment, WebSocketMessageType.Text, true, _cancellationTokenSource.Token);
+            await _webSocket.SendAsync(sendSegment, WebSocketMessageType.Text, true, CancellationToken);
         }
 
         protected async Task SendCommandAsync<T>(T message)
@@ -57,11 +63,11 @@ namespace CamillaDsp.Client
 
             do
             {
-                result = await _webSocket.ReceiveAsync(segment, _cancellationTokenSource.Token);
+                result = await _webSocket.ReceiveAsync(segment, CancellationToken);
                 switch(result.MessageType)
                 {
                     case WebSocketMessageType.Close:
-                        await _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", _cancellationTokenSource.Token);
+                        await _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", CancellationToken);
                         break;
                     case WebSocketMessageType.Text:
                         sb.Append(Encoding.UTF8.GetString(buffer, 0, result.Count));
