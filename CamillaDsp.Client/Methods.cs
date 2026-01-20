@@ -56,7 +56,10 @@ namespace CamillaDsp.Client
         GetPreviousConfig,
         Reload,
         Stop,
-        Exit
+        Exit,
+        ReadConfig,
+        ReadConfigFile,
+        ValidateConfig
     }
 
     public enum SetMethods

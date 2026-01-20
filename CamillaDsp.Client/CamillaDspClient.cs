@@ -560,7 +560,27 @@ namespace CamillaDsp.Client
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
-        public async Task SetConfigFilePath(string path) => 
-            await Set<string>(SetMethods.SetConfigFilePath, path);
+        public async Task SetConfigFilePath(string path) => await Set<string>(SetMethods.SetConfigFilePath, path);
+
+        /// <summary>
+        /// Read the provided config (as a yaml string) and check it for yaml syntax errors. 
+        /// </summary>
+        /// <param name="config"></param>
+        /// <returns></returns>
+        public async Task ReadConfig(string config) => await Get<string, object>(GetMethods.ReadConfig, config);
+
+        /// <summary>
+        /// Same as ReadConfig but reads the config from the file at the given path.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public async Task ReadConfigFile(string path) => await Get<string, object>(GetMethods.ReadConfigFile, path);
+
+        /// <summary>
+        /// Same as ReadConfig but performs more extensive checks to ensure the configuration can be applied.
+        /// </summary>
+        /// <param name="config"></param>
+        /// <returns></returns>
+        public async Task ValidateConfig(string config) => await Get<string, object>(GetMethods.ValidateConfig, config);
     }
 }
