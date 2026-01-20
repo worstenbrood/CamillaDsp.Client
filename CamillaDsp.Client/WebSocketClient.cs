@@ -10,10 +10,9 @@ using CamillaDsp.Client.Models;
 
 namespace CamillaDsp.Client
 {
-    public abstract class WebSocketClient : IDisposable
+    public abstract class WebSocketClient(string url) : IDisposable
     {
-        private readonly object _lock = new();
-        private readonly Uri _uri;
+        private readonly Uri _uri = new(url);
         private readonly ClientWebSocket _webSocket = new();
         private readonly CancellationTokenSource _cancellationTokenSource = new();
         protected readonly JsonSerializerOptions JsonSerializerOptions = new()
@@ -22,12 +21,7 @@ namespace CamillaDsp.Client
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         };
 
-        public WebSocketClient(string url)
-        {
-            _uri = new(url);
-        }
-
-        private async Task Connect()
+        public async Task Connect()
         {
             if (_webSocket.State != WebSocketState.Open)
             {
@@ -74,9 +68,10 @@ namespace CamillaDsp.Client
                         break;
                 }
             }
-            while (!result.EndOfMessage);
+            while (!result.EndOfMessage && result.MessageType != WebSocketMessageType.Close);
 
-            if (!result.CloseStatus.HasValue && result.MessageType == WebSocketMessageType.Text)
+            // Return string
+            if (result.MessageType == WebSocketMessageType.Text)
             {
                 return sb.ToString();
             }
