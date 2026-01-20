@@ -10,6 +10,33 @@ namespace CamillaDsp.Client
     /// <param name="url"></param>
     public class CamillaDspClient(string url) : WebSocketClient(url)
     {
+        private static T? HandleResult<T>(string methodString, string result)
+        {
+            var json = JsonDocument.Parse(result);
+            JsonElement element;
+
+            if (json.RootElement.TryGetProperty("Invalid", out element))
+            {
+                var error = element.Deserialize<Error>();
+                if (error != null)
+                {
+                    throw new CamillaDspException(methodString, error.Message);
+                }
+            }
+            else if (json.RootElement.TryGetProperty(methodString, out element))
+            {
+                var dspResult = element.Deserialize<DSPResult<T?>>();
+                if (dspResult?.Result != DSPResultStatus.Ok)
+                {
+                    throw new CamillaDspException(methodString, "Error");
+                }
+
+                return dspResult.Value;
+            }
+
+            return default;
+        }
+
         protected async Task<T?> Get<T>(GetMethods method)
         {
             var methodString = method.ToString();
@@ -18,17 +45,7 @@ namespace CamillaDsp.Client
             var result = await ReceiveStringResultAsync();
             if (result != null)
             {
-                var json = JsonDocument.Parse(result);
-                if (json.RootElement.TryGetProperty(methodString, out var element))
-                {
-                    var dspResult = element.Deserialize<DSPResult<T?>>();
-                    if (dspResult?.Result != DSPResultStatus.Ok)
-                    {
-                        throw new CamillaDspException(method, "Error");
-                    }
-
-                    return dspResult.Value;
-                }
+                return HandleResult<T>(methodString, result);
             }
 
             return default;
@@ -43,17 +60,7 @@ namespace CamillaDsp.Client
             var result = await ReceiveStringResultAsync();
             if (result != null)
             {
-                var json = JsonDocument.Parse(result);
-                if (json.RootElement.TryGetProperty(methodString, out var element))
-                {
-                    var dspResult = element.Deserialize<DSPResult<U?>>();
-                    if (dspResult?.Result != DSPResultStatus.Ok)
-                    {
-                        throw new CamillaDspException(method, "Error");
-                    }
-
-                    return dspResult.Value;
-                }
+                return HandleResult<U>(methodString, result);
             }
 
             return default;
@@ -68,15 +75,7 @@ namespace CamillaDsp.Client
             var result = await ReceiveStringResultAsync();
             if (result != null)
             {
-                var json = JsonDocument.Parse(result);
-                if (json.RootElement.TryGetProperty(methodString, out var element))
-                {
-                    var dspResult = element.Deserialize<DSPResult<T?>>();
-                    if (dspResult?.Result != DSPResultStatus.Ok)
-                    {
-                        throw new CamillaDspException(method, "Error");
-                    }
-                }
+                HandleResult<T>(methodString, result);
             }
         }
 
@@ -386,5 +385,14 @@ namespace CamillaDsp.Client
         /// <returns></returns>
         public async Task<string[][]?> GetAvailablePlaybackDevices(Backend backend) => 
             await Get<Backend, string[][]>(GetMethods.GetAvailablePlaybackDevices, backend);
+
+        /// <summary>
+        /// Set the volume control to the given value in dB. Clamped to the range -150 to +50 dB.
+        /// </summary>
+        /// <param name="faderIndex"></param>
+        /// <param name="volumeDb"></param>
+        /// <returns></returns>
+        public async Task SetFaderVolume(float faderIndex, float volumeDb) => 
+            await Set<object>(SetMethods.SetFaderVolume, new float[] {faderIndex, volumeDb});
     }
 }

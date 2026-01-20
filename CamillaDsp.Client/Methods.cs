@@ -52,6 +52,7 @@ namespace CamillaDsp.Client
         SetUpdateInterval,
         SetVolume,
         AdjustVolume,
-        SetMute
+        SetMute,
+        SetFaderVolume
     }
 }
