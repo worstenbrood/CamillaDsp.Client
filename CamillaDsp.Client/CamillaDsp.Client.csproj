@@ -1,14 +1,40 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFrameworks>netstandard20;net8.0</TargetFrameworks>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<LangVersion>12.0</LangVersion>
+		<Nullable>enable</Nullable>  
+	</PropertyGroup>
 
-  <PropertyGroup>
-    <TargetFrameworks>netstandard20;net8.0</TargetFrameworks>
-    <ImplicitUsings>enable</ImplicitUsings>
-	<LangVersion>12.0</LangVersion>
-	<Nullable>enable</Nullable>  
-  </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="System.Text.Json" Version="10.0.2" />
-  </ItemGroup>
+	<ItemGroup>
+		<!-- Go one folder up to find the file and pack it at the root -->
+		<None Include="../README.md" Pack="true" PackagePath="\" />
+	</ItemGroup>
+	
+	<!--Package properties-->
+	<PropertyGroup>
+		<Title>CamillaDsp.Client</Title>
+		<PackageId>CamillaDsp.Client</PackageId>
+		<AssemblyVersion>1.0.1.0</AssemblyVersion>
+		<VersionPrefix>1.0.1</VersionPrefix>
+		<VersionSuffix></VersionSuffix>
+		<AssemblyTitle>CamillaDsp.Client</AssemblyTitle>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<Authors>worstenbrood</Authors>
+		<Copyright>worstenbrood@gmail.com © 2026</Copyright>
+		<Description>CamillaDsp client library for .NET.</Description>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+		<RepositoryType>git</RepositoryType>
+		<RepositoryUrl>https://github.com/worstenbrood/CamillaDsp.Client.git</RepositoryUrl>
+		<NeutralLanguage>en</NeutralLanguage>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+	</PropertyGroup>
+	
+	<ItemGroup>
+		<PackageReference Include="System.Text.Json" Version="10.0.2" />
+	</ItemGroup>
 
 </Project>
