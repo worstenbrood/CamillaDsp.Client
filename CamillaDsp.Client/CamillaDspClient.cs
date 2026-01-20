@@ -1,6 +1,8 @@
 ﻿using CamillaDsp.Client.Models;
+using CamillaDsp.Client.Models.Config;
 using System.Net.WebSockets;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace CamillaDsp.Client
 {
@@ -455,7 +457,112 @@ namespace CamillaDsp.Client
         public async Task<bool?> ToggleFaderMute(int faderIndex) => 
             (await Get<int, object[]>(GetMethods.ToggleFaderMute, faderIndex))?[1] as bool?;
 
-        public async Task<Fader[]?> GetFaders() => 
-            await Get<Fader[]>(GetMethods.GetFaders);
+        /// <summary>
+        /// Read all faders.
+        /// </summary>
+        /// <returns></returns>
+        public async Task<Fader[]?> GetFaders() => await Get<Fader[]>(GetMethods.GetFaders);
+
+        /// <summary>
+        /// Read the current configuration as yaml. 
+        /// </summary>
+        /// <returns></returns>
+        public async Task<string?> GetConfig() => await Get<string>(GetMethods.GetConfig);
+
+        /// <summary>
+        /// Read the current configuration as json.
+        /// </summary>
+        /// <returns></returns>
+        public async Task<string?> GetConfigJson() => await Get<string>(GetMethods.GetConfigJson);
+
+        /// <summary>
+        /// Read the current configuration as json.
+        /// </summary>
+        /// <returns></returns>
+        public async Task<DspConfig?> GetConfigObject() 
+        {
+            var result = await GetConfigJson();
+            if (result == null)
+            {
+                return null;
+            }
+            return JsonSerializer.Deserialize<DspConfig>(result.Trim('\"'), JsonSerializerOptions);
+        }
+
+        /// <summary>
+        /// Read the title from the current configuration. 
+        /// </summary>
+        /// <returns></returns>
+        public async Task<string?> GetConfigTitle() => await Get<string>(GetMethods.GetConfigTitle);
+
+        /// <summary>
+        /// Read the description from the current configuration. 
+        /// </summary>
+        /// <returns></returns>
+        public async Task<string?> GetConfigDescription() => await Get<string>(GetMethods.GetConfigDescription);
+
+        /// <summary>
+        /// Get name and path of current config file. 
+        /// </summary>
+        /// <returns></returns>
+        public async Task<string?> GetConfigFilePath() => await Get<string>(GetMethods.GetConfigFilePath);
+
+        /// <summary>
+        /// Read the previous configuration as yaml.
+        /// </summary>
+        /// <returns></returns>
+        public async Task<string?> GetPreviousConfig() => await Get<string>(GetMethods.GetPreviousConfig);
+
+        /// <summary>
+        /// Reload current config file (same as SIGHUP).
+        /// </summary>
+        /// <returns></returns>
+        public async Task Reload() => await Get<object>(GetMethods.Reload);
+
+        /// <summary>
+        /// Stop processing and wait for a new config to be uploaded either with 
+        /// <see cref="SetConfig"></see> or with <see cref="SetConfigFilePath"/>+<see cref="Reload"/>.
+        /// </summary>
+        /// <returns></returns>
+        public async Task Stop() => await Get<object>(GetMethods.Stop);
+
+        /// <summary>
+        /// Stop processing and exit.
+        /// </summary>
+        /// <returns></returns>
+        public async Task Exit() => await Get<object>(GetMethods.Exit);
+
+        /// <summary>
+        /// Provide a new config as a yaml string. Applied directly.
+        /// </summary>
+        /// <param name="config"></param>
+        /// <returns></returns>
+        public async Task SetConfig(string config) => await Set<string>(SetMethods.SetConfig, config);
+
+        /// <summary>
+        ///  Provide a new config as a JSON string. Applied directly.
+        /// </summary>
+        /// <param name="config"></param>
+        /// <returns></returns>
+        public async Task SetConfigJson(string config) => await Set<string>(SetMethods.SetConfigJson, config);
+
+        /// <summary>
+        ///  Provide a new config as a JSON string. Applied directly.
+        /// </summary>
+        /// <param name="config"></param>
+        /// <returns></returns>
+        public async Task SetConfigObject(DspConfig config)
+        {
+            var json = JsonSerializer.Serialize(config, JsonSerializerOptions);
+            await Set<string>(SetMethods.SetConfigJson, json);
+        }
+        
+        /// <summary>
+        /// Change config file name given as a string, not applied until <see cref="Reload"/> is called.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public async Task SetConfigFilePath(string path) => 
+            await Set<string>(SetMethods.SetConfigFilePath, path);
     }
 }

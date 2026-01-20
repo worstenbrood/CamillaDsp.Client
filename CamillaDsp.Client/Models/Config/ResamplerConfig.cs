@@ -1,0 +1,18 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Text.Json.Serialization;
+using System.Threading.Tasks;
+
+namespace CamillaDsp.Client.Models.Config
+{
+    public class ResamplerConfig
+    {
+        [JsonPropertyName("profile")]
+        public string? Profile { get; set; }
+
+        [JsonPropertyName("type")]
+        public string? Type { get; set; }
+    }
+}

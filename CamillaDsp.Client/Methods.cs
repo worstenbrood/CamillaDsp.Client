@@ -47,7 +47,16 @@ namespace CamillaDsp.Client
         GetAvailablePlaybackDevices,
         GetFaderMute,
         ToggleFaderMute,
-        GetFaders
+        GetFaders,
+        GetConfig,
+        GetConfigJson,
+        GetConfigTitle, 
+        GetConfigDescription,
+        GetConfigFilePath,
+        GetPreviousConfig,
+        Reload,
+        Stop,
+        Exit
     }
 
     public enum SetMethods
@@ -59,6 +68,9 @@ namespace CamillaDsp.Client
         SetFaderVolume,
         SetFaderExternalVolume,
         AdjustFaderVolume,
-        SetFaderMute
+        SetFaderMute,
+        SetConfigFilePath,
+        SetConfig,
+        SetConfigJson
     }
 }
