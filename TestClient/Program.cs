@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using CamillaDsp.Client;
 using CamillaDsp.Client.Models;
-
 public class Program
 {
     public static async Task Main(string[] args)
