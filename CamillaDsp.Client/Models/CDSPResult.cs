@@ -3,16 +3,16 @@
 namespace CamillaDsp.Client.Models
 {
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    public enum DSPResultStatus
+    public enum Result
     {
         Ok,
         Error
     }
 
-    public class DSPResult<T>
+    public class Result<T>
     {
         [JsonPropertyName("result")]
-        public DSPResultStatus? Result { get; set; }
+        public Result? Status { get; set; }
 
         [JsonPropertyName("value")]
         public T? Value { get; set; }

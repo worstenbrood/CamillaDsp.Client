@@ -14,13 +14,14 @@ public class Program
         
         // Fetch some info
         sb.AppendLine($"camilladsp version: {await client.GetVersionAsync()}");
+        sb.AppendLine($"config: {await client.GetConfig()}");
         var volume = await client.GetVolume();
         sb.AppendLine($"volume: {volume}dB");
         
         await client.SetVolume(volume.GetValueOrDefault() + 0.01f);
         
         sb.AppendLine($"volume: {await client.GetVolume()}dB");
-        sb.AppendLine($"config: {await client.GetConfig()}");
+        sb.AppendLine($"uodate interval: {await client.GetUpdateIntervalAsync()}ms");
         sb.AppendLine($"elapsed: {sw.ElapsedMilliseconds}ms");
         Console.WriteLine(sb.ToString());
     }

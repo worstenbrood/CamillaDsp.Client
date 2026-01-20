@@ -4,10 +4,9 @@ using System.Text.Json;
 using System.Net.WebSockets;
 using System.Threading.Tasks;
 using System.Text.Json.Serialization;
-using CamillaDsp.Client.Models;
 using System.Threading;
 
-namespace CamillaDsp.Client
+namespace CamillaDsp.Client.Base
 {
     public abstract class WebSocketClient(string url) : IDisposable
     {
@@ -28,7 +27,7 @@ namespace CamillaDsp.Client
         {
             if (_webSocket.State != WebSocketState.Open)
             {
-                var previousState = _webSocket.State;
+                WebSocketState previousState = _webSocket.State;
                 await _webSocket.ConnectAsync(_uri, CancellationToken);
                 return previousState;
             }
@@ -38,7 +37,7 @@ namespace CamillaDsp.Client
 
         protected async Task SendStringCommandAsync(string message)
         {
-            var sendBuffer = Encoding.UTF8.GetBytes(message);
+            byte[] sendBuffer = Encoding.UTF8.GetBytes(message);
             var sendSegment = new ArraySegment<byte>(sendBuffer);
             
             await Connect();
@@ -47,7 +46,7 @@ namespace CamillaDsp.Client
 
         protected async Task SendCommandAsync<T>(T message)
         {
-            var data = ModelTypes<T>.TypeCode switch
+            string data = ModelTypes<T>.TypeCode switch
             {
                 TypeCode.Object => JsonSerializer.Serialize(message, JsonSerializerOptions),
                 _ => (string?)Convert.ChangeType(message, TypeCode.String)
@@ -88,7 +87,7 @@ namespace CamillaDsp.Client
 
         protected async Task<T?> ReceiveResultAsync<T>(int bufferSize = 4096)
         {
-            var result = await ReceiveStringResultAsync(bufferSize);
+            string? result = await ReceiveStringResultAsync(bufferSize);
             if (result != null)
             {
                 return ModelTypes<T>.TypeCode switch
@@ -140,7 +139,7 @@ namespace CamillaDsp.Client
             Semaphore.Wait(CancellationToken);
             try
             {
-                await SendCommandAsync<T>(message);
+                await SendCommandAsync(message);
                 return await ReceiveStringResultAsync();
             }
             finally
@@ -156,7 +155,7 @@ namespace CamillaDsp.Client
             Semaphore.Wait(CancellationToken);
             try
             {
-                await SendCommandAsync<T>(message);
+                await SendCommandAsync(message);
                 return await ReceiveResultAsync<U>();
             }
             finally

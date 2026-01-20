@@ -1,8 +1,9 @@
-﻿using CamillaDsp.Client.Models;
-using CamillaDsp.Client.Models.Config;
-using System.Collections.Generic;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using CamillaDsp.Client.Base;
+using CamillaDsp.Client.Models;
+using CamillaDsp.Client.Models.Config;
 
 namespace CamillaDsp.Client
 {
@@ -11,45 +12,72 @@ namespace CamillaDsp.Client
     /// </summary>
     public class CamillaDspClient : WebSocketClient
     {
-        /// <param name="url"></param>
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="url">eg. ws://192.168.1.123:1234.</param>
+        /// <param name="connect">If true, connects synchronously.</param>
         public CamillaDspClient(string url, bool connect = true) : base(url)
         {
             if (connect)
             {
                 // Connect sync
-                Connect().ConfigureAwait(false).GetAwaiter().GetResult();
+                Connect()
+                    .ConfigureAwait(false)
+                    .GetAwaiter()
+                    .GetResult();
             }
         }
 
-        private static T? HandleResult<T>(string methodString, string? result)
+
+        /// <summary>
+        /// Handles the json response
+        /// </summary>
+        /// <typeparam name="T">Type of method value</typeparam>
+        /// <param name="methodName">Method name.</param>
+        /// <param name="result">Response as a string.</param>
+        /// <returns></returns>
+        /// <exception cref="CamillaDspException"></exception>
+        private static T? HandleResponse<T>(string methodName, string? response)
         {
             // Null check
-            if (result == null)
+            if (response == null || string.IsNullOrWhiteSpace(response))
             {
                 return default;
             }
 
-            var json = JsonDocument.Parse(result);
+            // Parse json
+            var json = JsonDocument.Parse(response);
 
             // We received an error
-            if (json.RootElement.TryGetProperty("Invalid", out JsonElement element))
+            if (json.RootElement.TryGetProperty(Constants.Json.Invalid, out JsonElement element))
             {
                 var error = element.Deserialize<Error>();
                 if (error != null)
                 {
-                    throw new CamillaDspException(methodString, error.Message);
+                    throw new CamillaDspException(methodName, error.Message);
                 }
             }
-            // We received a reply
-            else if (json.RootElement.TryGetProperty(methodString, out element))
-            {
-                var dspResult = element.Deserialize<DSPResult<T?>>();
-                if (dspResult?.Result != DSPResultStatus.Ok)
-                {
-                    throw new CamillaDspException(methodString, "Error");
-                }
 
-                return dspResult.Value;
+            // We received a reply
+            else if (json.RootElement.TryGetProperty(methodName, out element))
+            {
+                Result<T>? result = element.Deserialize<Result<T>>();
+                if (result != null && result.Status != null)
+                {
+                    if (result.Status != Result.Ok)
+                    {
+                        string message = $"{result.Status}";
+                        if (result.Value != null)
+                        {
+                            message += $": {result.Value}";
+                        }
+
+                        throw new CamillaDspException(methodName, message);
+                    }
+
+                    return result.Value;
+                }
             }
 
             return default;
@@ -57,17 +85,17 @@ namespace CamillaDsp.Client
 
         protected async Task<T?> Get<T>(GetMethods method)
         {
-            var methodString = method.ToString();
-            string? result = await SendAsync($"\"{methodString}\"");
-            return HandleResult<T>(methodString, result);
+            var methodName = method.ToString();
+            string? result = await SendAsync($"\"{methodName}\"");
+            return HandleResponse<T>(methodName, result);
         }
 
         protected async Task<U?> Get<T, U>(GetMethods method, T value)
         {
-            var methodString = method.ToString();
-            var data = new Dictionary<string, object?> { { methodString, value } };
+            var methodName = method.ToString();
+            var data = new Dictionary<string, object?> { { methodName, value } };
             string? result = await SendAsync(data);
-            return HandleResult<U>(methodString, result);
+            return HandleResponse<U>(methodName, result);
         }
 
         protected async Task Set<T>(SetMethods method, T value)
@@ -75,7 +103,7 @@ namespace CamillaDsp.Client
             var methodString = method.ToString();
             var data = new Dictionary<string, object?> { { methodString, value } };
             string? result = await SendAsync(data);
-            HandleResult<T>(methodString, result);
+            HandleResponse<T>(methodString, result);
         }
 
         protected async Task<U?> Set<T, U>(SetMethods method, T value)
@@ -83,7 +111,7 @@ namespace CamillaDsp.Client
             var methodString = method.ToString();
             var data = new Dictionary<string, object?> { { methodString, value } };
             string? result = await SendAsync(data);
-            return HandleResult<U>(methodString, result);
+            return HandleResponse<U>(methodString, result);
         }
 
         /// <summary>

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CamillaDsp.Client.Models
+namespace CamillaDsp.Client.Base
 {
     internal class ModelTypes<T>
     {
