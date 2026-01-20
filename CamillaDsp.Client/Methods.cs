@@ -13,11 +13,28 @@ namespace CamillaDsp.Client
         GetState,
         GetStopReason,
         GetCaptureRate,
-        GetSupportedDeviceTypes
+        GetSignalRange,
+        GetRateAdjust,
+        GetBufferLevel,
+        GetClippedSamples,
+        ResetClippedSamples,
+        GetProcessingLoad,
+        GetStateFilePath,
+        GetStateFileUpdated,
+        GetSupportedDeviceTypes,
+        GetCaptureSignalPeak,
+        GetCaptureSignalRms,
+        GetPlaybackSignalPeak,
+        GetPlaybackSignalRms,
+        GetCaptureSignalPeakSince,
+        GetCaptureSignalRmsSince,
+        GetPlaybackSignalPeakSince,
+        GetPlaybackSignalRmsSince
     }
 
     public enum SetMethods
     {
-        SetUpdateInterval
+        SetUpdateInterval,
+        
     }
 }
