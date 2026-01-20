@@ -1,9 +1,8 @@
 ﻿using CamillaDsp.Client.Models;
 using CamillaDsp.Client.Models.Config;
-using System.Net.WebSockets;
+using System.Collections.Generic;
 using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Threading;
+using System.Threading.Tasks;
 
 namespace CamillaDsp.Client
 {
@@ -17,6 +16,7 @@ namespace CamillaDsp.Client
         {
             if (connect)
             {
+                // Connect sync
                 Connect().ConfigureAwait(false).GetAwaiter().GetResult();
             }
         }
@@ -106,7 +106,7 @@ namespace CamillaDsp.Client
         /// </summary>
         /// <param name="interval">Update interval in ms.</param>
         /// <returns></returns>
-        public async Task SetUpdateIntervalAsync(int interval) => await Set<int>(SetMethods.SetUpdateInterval, interval);
+        public async Task SetUpdateIntervalAsync(int interval) => await Set(SetMethods.SetUpdateInterval, interval);
 
         /// <summary>
         /// Get the current state of the processing as a <see cref="State"/>.
@@ -338,7 +338,7 @@ namespace CamillaDsp.Client
         /// <param name="volumeDb"></param>
         /// <returns></returns>
         public async Task SetVolume(float volumeDb) => 
-            await Set<float>(SetMethods.SetVolume, volumeDb);
+            await Set(SetMethods.SetVolume, volumeDb);
 
         /// <summary>
         /// Change the volume setting by the given number of dB, positive or negative. 
@@ -348,7 +348,7 @@ namespace CamillaDsp.Client
         /// <param name="deltaDb"></param>
         /// <returns></returns>
         public async Task AdjustVolume(float[] deltaDb) => 
-            await Set<float[]>(SetMethods.AdjustVolume, deltaDb);
+            await Set(SetMethods.AdjustVolume, deltaDb);
 
         /// <summary>
         /// Get the current mute setting.
@@ -361,7 +361,7 @@ namespace CamillaDsp.Client
         /// </summary>
         /// <param name="mute"></param>
         /// <returns></returns>
-        public async Task SetMute(bool mute) => await Set<bool>(SetMethods.SetMute, mute);
+        public async Task SetMute(bool mute) => await Set(SetMethods.SetMute, mute);
 
         /// <summary>
         /// Toggle muting.
@@ -400,7 +400,7 @@ namespace CamillaDsp.Client
         /// <param name="volumeDb"></param>
         /// <returns></returns>
         public async Task SetFaderVolume(float faderIndex, float volumeDb) => 
-            await Set<object>(SetMethods.SetFaderVolume, new float[] {faderIndex, volumeDb});
+            await Set(SetMethods.SetFaderVolume, new float[] {faderIndex, volumeDb});
 
         /// <summary>
         /// Special command for setting the volume when a Loudness filter is being combined with an external volume control 
@@ -411,7 +411,7 @@ namespace CamillaDsp.Client
         /// <param name="volumeDb"></param>
         /// <returns></returns>
         public async Task SetFaderExternalVolume(float faderIndex, float volumeDb) => 
-            await Set<object>(SetMethods.SetFaderExternalVolume, new float[] {faderIndex, volumeDb });
+            await Set(SetMethods.SetFaderExternalVolume, new float[] {faderIndex, volumeDb });
 
         /// <summary>
         /// Change the volume setting by the given number of dB, positive or negative. 
@@ -422,7 +422,7 @@ namespace CamillaDsp.Client
         /// <param name="deltaDb"></param>
         /// <returns></returns>
         public async Task AdjustFaderVolume(int faderIndex, float deltaDb) => 
-            await Set<object>(SetMethods.AdjustFaderVolume, new object[] { faderIndex, deltaDb });
+            await Set(SetMethods.AdjustFaderVolume, new object[] { faderIndex, deltaDb });
 
         /// <summary>
         /// Change the volume setting by the given number of dB, positive or negative. 
@@ -434,7 +434,7 @@ namespace CamillaDsp.Client
         /// <returns></returns>
         public async Task AdjustFaderVolume(int faderIndex, float[] deltaDb)
         {
-            await Set<object>(SetMethods.AdjustFaderVolume, new object[] { faderIndex, deltaDb });
+            await Set(SetMethods.AdjustFaderVolume, new object[] { faderIndex, deltaDb });
         }
 
         /// <summary>
@@ -452,7 +452,7 @@ namespace CamillaDsp.Client
         /// <param name="mute"></param>
         /// <returns></returns>
         public async Task SetFaderMute(int faderIndex, bool mute) => 
-            await Set<object>(SetMethods.SetFaderMute, new object[] { faderIndex, mute });
+            await Set(SetMethods.SetFaderMute, new object[] { faderIndex, mute });
 
         /// <summary>
         /// Toggle muting.
@@ -542,14 +542,14 @@ namespace CamillaDsp.Client
         /// </summary>
         /// <param name="config"></param>
         /// <returns></returns>
-        public async Task SetConfig(string config) => await Set<string>(SetMethods.SetConfig, config);
+        public async Task SetConfig(string config) => await Set(SetMethods.SetConfig, config);
 
         /// <summary>
         ///  Provide a new config as a JSON string. Applied directly.
         /// </summary>
         /// <param name="config"></param>
         /// <returns></returns>
-        public async Task SetConfigJson(string config) => await Set<string>(SetMethods.SetConfigJson, config);
+        public async Task SetConfigJson(string config) => await Set(SetMethods.SetConfigJson, config);
 
         /// <summary>
         ///  Provide a new config as a JSON string. Applied directly.
@@ -559,7 +559,7 @@ namespace CamillaDsp.Client
         public async Task SetConfigObject(DspConfig config)
         {
             var json = JsonSerializer.Serialize(config, JsonSerializerOptions);
-            await Set<string>(SetMethods.SetConfigJson, json);
+            await Set(SetMethods.SetConfigJson, json);
         }
         
         /// <summary>
@@ -567,7 +567,7 @@ namespace CamillaDsp.Client
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
-        public async Task SetConfigFilePath(string path) => await Set<string>(SetMethods.SetConfigFilePath, path);
+        public async Task SetConfigFilePath(string path) => await Set(SetMethods.SetConfigFilePath, path);
 
         /// <summary>
         /// Read the provided config (as a yaml string) and check it for yaml syntax errors. 

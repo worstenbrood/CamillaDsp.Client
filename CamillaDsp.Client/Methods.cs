@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CamillaDsp.Client
+﻿namespace CamillaDsp.Client
 {
     public enum GetMethods
     {
