@@ -29,12 +29,29 @@ namespace CamillaDsp.Client
         GetCaptureSignalPeakSince,
         GetCaptureSignalRmsSince,
         GetPlaybackSignalPeakSince,
-        GetPlaybackSignalRmsSince
+        GetPlaybackSignalRmsSince,
+        GetCaptureSignalPeakSinceLast,
+        GetCaptureSignalRmsSinceLast,
+        GetPlaybackSignalPeakSinceLast,
+        GetPlaybackSignalRmsSinceLast,
+        GetSignalLevels,
+        GetSignalLevelsSince,
+        GetSignalLevelsSinceLast,
+        GetSignalPeaksSinceStart,
+        ResetSignalPeaksSinceStart,
+        GetVolume,
+        GetMute,
+        ToggleMute,
+        GetFaderVolume,
+        GetAvailableCaptureDevices,
+        GetAvailablePlaybackDevices
     }
 
     public enum SetMethods
     {
         SetUpdateInterval,
-        
+        SetVolume,
+        AdjustVolume,
+        SetMute
     }
 }

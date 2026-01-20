@@ -237,5 +237,154 @@ namespace CamillaDsp.Client
         /// <returns></returns>
         public async Task<float[]?> GetPlaybackSignalRmsSince(float seconds) => 
             await Get<float, float[]>(GetMethods.GetPlaybackSignalRmsSince, seconds);
+
+        /// <summary>
+        /// Get the peak value measured since the last call to the same command from the same client. 
+        /// The first time a client calls this command it returns the values measured since the client connected. 
+        /// If the command is repeated very quickly, it may happen that there is no new data. 
+        /// The response is then an empty vector.
+        /// </summary>
+        /// <returns></returns>
+        public async Task<float[]?> GetCaptureSignalPeakSinceLast() => 
+            await Get<float[]>(GetMethods.GetCaptureSignalPeakSinceLast);
+
+        /// <summary>
+        /// Get the RMS value measured since the last call to the same command from the same client. 
+        /// The first time a client calls this command it returns the values measured since the client connected. 
+        /// If the command is repeated very quickly, it may happen that there is no new data. 
+        /// The response is then an empty vector.
+        /// </summary>
+        /// <returns></returns>
+        public async Task<float[]?> GetCaptureSignalRmsSinceLast() => 
+            await Get<float[]>(GetMethods.GetCaptureSignalRmsSinceLast);
+
+        /// <summary>
+        /// Get the peak value measured since the last call to the same command from the same client. 
+        /// The first time a client calls this command it returns the values measured since the client connected. 
+        /// If the command is repeated very quickly, it may happen that there is no new data. 
+        /// The response is then an empty vector.
+        /// </summary>
+        /// <returns></returns>
+        public async Task<float[]?> GetPlaybackSignalPeakSinceLast() => 
+            await Get<float[]>(GetMethods.GetPlaybackSignalPeakSinceLast);
+
+        /// <summary>
+        /// Get the RMS value measured since the last call to the same command from the same client. 
+        /// The first time a client calls this command it returns the values measured since the client connected. 
+        /// If the command is repeated very quickly, it may happen that there is no new data. 
+        /// The response is then an empty vector.
+        /// </summary>
+        /// <returns></returns>
+        public async Task<float[]?> GetPlaybackSignalRmsSinceLast() => 
+            await Get<float[]>(GetMethods.GetPlaybackSignalRmsSinceLast);
+
+        /// <summary>
+        /// Combined commands for reading several levels with a single request. 
+        /// These commands provide the same data as calling all the four commands in each of the groups above. 
+        /// The values are returned as a json object with keys playback_peak, playback_rms, capture_peak and capture_rms.
+        /// </summary>
+        /// <returns></returns>
+        public async Task<Signals?> GetSignalLevels() => 
+            await Get<Signals>(GetMethods.GetSignalLevels);
+
+        /// <summary>
+        /// Combined commands for reading several levels with a single request. 
+        /// These commands provide the same data as calling all the four commands in each of the groups above. 
+        /// The values are returned as a json object with keys playback_peak, playback_rms, capture_peak and capture_rms.
+        /// </summary>
+        /// <returns></returns>
+        public async Task<Signals?> GetSignalLevelsSince(float seconds) => 
+            await Get<float, Signals>(GetMethods.GetSignalLevelsSince, seconds);
+
+        /// <summary>
+        /// Combined commands for reading several levels with a single request. 
+        /// These commands provide the same data as calling all the four commands in each of the groups above. 
+        /// The values are returned as a json object with keys playback_peak, playback_rms, capture_peak and capture_rms.
+        /// </summary>
+        /// <returns></returns>
+        public async Task<Signals?> GetSignalLevelsSinceLast() => 
+            await Get<Signals>(GetMethods.GetSignalLevelsSinceLast);
+
+        /// <summary>
+        /// Get the peak since start.
+        /// </summary>
+        /// <returns></returns>
+        public async Task<SignalPeaks?> GetSignalPeaksSinceStart() => 
+            await Get<SignalPeaks>(GetMethods.GetSignalPeaksSinceStart);
+
+        /// <summary>
+        /// Reset the peak values. Note that this resets the peak for all clients.
+        /// </summary>
+        /// <returns></returns>
+        public async Task ResetSignalPeaksSinceStart() => 
+            await Get<object>(GetMethods.ResetSignalPeaksSinceStart);
+
+        /// <summary>
+        /// Get the current volume setting in dB.
+        /// </summary>
+        /// <returns></returns>
+        public async Task<float?> GetVolume() => 
+            await Get<float>(GetMethods.GetVolume);
+
+        /// <summary>
+        /// Set the volume control to the given value in dB. Clamped to the range -150 to +50 dB.
+        /// </summary>
+        /// <param name="volumeDb"></param>
+        /// <returns></returns>
+        public async Task SetVolume(float volumeDb) => 
+            await Set<float>(SetMethods.SetVolume, volumeDb);
+
+        /// <summary>
+        /// Change the volume setting by the given number of dB, positive or negative. 
+        /// The resulting volume is clamped to the range -150 to +50 dB. 
+        /// The allowed range can be reduced by providing two more values, for minimum and maximum.
+        /// </summary>
+        /// <param name="deltaDb"></param>
+        /// <returns></returns>
+        public async Task AdjustVolume(float[] deltaDb) => 
+            await Set<float[]>(SetMethods.AdjustVolume, deltaDb);
+
+        /// <summary>
+        /// Get the current mute setting.
+        /// </summary>
+        /// <returns></returns>
+        public async Task<bool?> GetMute() => await Get<bool>(GetMethods.GetMute);
+
+        /// <summary>
+        /// Set muting to the given value.
+        /// </summary>
+        /// <param name="mute"></param>
+        /// <returns></returns>
+        public async Task SetMute(bool mute) => await Set<bool>(SetMethods.SetMute, mute);
+
+        /// <summary>
+        /// Toggle muting.
+        /// </summary>
+        /// <returns></returns>
+        public async Task<bool> ToggleMute() => await Get<bool>(GetMethods.ToggleMute);
+
+        /// <summary>
+        /// Get the current volume setting in dB.
+        /// </summary>
+        /// <param name="faderIndex"></param>
+        /// <returns></returns>
+        public async Task<float[]?> GetFaderVolume(int faderIndex) => 
+            await Get<int, float[]>(GetMethods.GetFaderVolume, faderIndex);
+
+        /// <summary>
+        /// Get a list of available capture devices.
+        /// </summary>
+        /// <param name="backend"></param>
+        /// <returns></returns>
+        public async Task<string[][]?> GetAvailableCaptureDevices(Backend backend) => 
+            await Get<Backend, string[][]>(GetMethods.GetAvailableCaptureDevices, backend);
+
+        /// <summary>
+        /// Get a list of available playback devices.
+        /// </summary>
+        /// <param name="backend"></param>
+        /// <returns></returns>
+        public async Task<string[][]?> GetAvailablePlaybackDevices(Backend backend) => 
+            await Get<Backend, string[][]>(GetMethods.GetAvailablePlaybackDevices, backend);
     }
 }
