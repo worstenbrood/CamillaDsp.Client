@@ -12,6 +12,9 @@ public class Program
         var sw = Stopwatch.StartNew();
         Console.WriteLine($"camilladsp version: {await client.GetVersionAsync()}");
         Console.WriteLine($"volume: {await client.GetVolume()}dB");
+        await client.SetVolume(-10.0f);
+        Console.WriteLine($"volume: {await client.GetVolume()}dB");
+        Console.WriteLine($"config: {await client.GetConfig()}");
         Console.WriteLine($"elapsed: {sw.ElapsedMilliseconds}ms");
     }
 }

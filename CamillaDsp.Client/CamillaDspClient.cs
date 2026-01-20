@@ -12,7 +12,7 @@ namespace CamillaDsp.Client
     /// </summary>
     public class CamillaDspClient : WebSocketClient
     {
-        public SemaphoreSlim _semaphore = new (1, 1);
+        
 
         /// <param name="url"></param>
         public CamillaDspClient(string url, bool connect = true) : base(url)
@@ -23,9 +23,17 @@ namespace CamillaDsp.Client
             }
         }
 
-        private static T? HandleResult<T>(string methodString, string result)
+        private static T? HandleResult<T>(string methodString, string? result)
         {
+            // Null check
+            if (result == null)
+            {
+                return default;
+            }
+
             var json = JsonDocument.Parse(result);
+
+            // We received an error
             if (json.RootElement.TryGetProperty("Invalid", out JsonElement element))
             {
                 var error = element.Deserialize<Error>();
@@ -34,6 +42,7 @@ namespace CamillaDsp.Client
                     throw new CamillaDspException(methodString, error.Message);
                 }
             }
+            // We received a reply
             else if (json.RootElement.TryGetProperty(methodString, out element))
             {
                 var dspResult = element.Deserialize<DSPResult<T?>>();
@@ -51,72 +60,32 @@ namespace CamillaDsp.Client
         protected async Task<T?> Get<T>(GetMethods method)
         {
             var methodString = method.ToString();
-            string? result;
-
-            // Lock
-            _semaphore.Wait();
-
-            try
-            {
-                await SendCommandAsync($"\"{methodString}\"");
-                result = await ReceiveStringResultAsync();
-            }
-            finally
-            { 
-                // Release
-                _semaphore.Release();
-            }
-
-            return result != null ? HandleResult<T>(methodString, result) : default;
+            string? result = await SendAsync($"\"{methodString}\"");
+            return HandleResult<T>(methodString, result);
         }
 
         protected async Task<U?> Get<T, U>(GetMethods method, T value)
         {
             var methodString = method.ToString();
             var data = new Dictionary<string, object?> { { methodString, value } };
-            string? result;
-
-            // Lock
-            _semaphore.Wait();
-
-            try
-            {
-                await SendCommandAsync(data);
-                result = await ReceiveStringResultAsync();
-            }
-            finally
-            {
-                // Release
-                _semaphore.Release();
-            }
-
-            return result != null ? HandleResult<U>(methodString, result) : default;
+            string? result = await SendAsync(data);
+            return HandleResult<U>(methodString, result);
         }
 
         protected async Task Set<T>(SetMethods method, T value)
         {
             var methodString = method.ToString();
             var data = new Dictionary<string, object?> { { methodString, value } };
-            string? result;
+            string? result = await SendAsync(data);
+            HandleResult<T>(methodString, result);
+        }
 
-            // Lock
-            _semaphore.Wait();
-
-            try
-            {
-                await SendCommandAsync(data);
-                result = await ReceiveStringResultAsync();
-            }
-            finally
-            {
-                // Release
-                _semaphore.Release();
-            }
-            
-            if (result != null)
-            {
-                HandleResult<T>(methodString, result);
-            }
+        protected async Task<U?> Set<T, U>(SetMethods method, T value)
+        {
+            var methodString = method.ToString();
+            var data = new Dictionary<string, object?> { { methodString, value } };
+            string? result = await SendAsync(data);
+            return HandleResult<U>(methodString, result);
         }
 
         /// <summary>

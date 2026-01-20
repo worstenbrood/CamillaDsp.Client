@@ -23,6 +23,8 @@ namespace CamillaDsp.Client
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         };
 
+        protected readonly SemaphoreSlim Semaphore = new(1, 1);
+
         public async Task<WebSocketState> Connect()
         {
             if (_webSocket.State != WebSocketState.Open)
@@ -100,10 +102,69 @@ namespace CamillaDsp.Client
             return default;
         }
 
+
+        public async Task<string?> SendAsync(string message)
+        {
+            // Lock
+            Semaphore.Wait();
+            try
+            {
+                await SendCommandAsync(message);
+                return await ReceiveStringResultAsync();
+            }
+            finally
+            {
+                // Release lock
+                Semaphore.Release();
+            }
+        }
+
         public async Task<T?> SendAsync<T>(string message)
         {
-            await SendCommandAsync(message);
-            return await ReceiveResultAsync<T>();
+            // Lock
+            Semaphore.Wait();
+            try
+            {
+                await SendCommandAsync(message);
+                return await ReceiveResultAsync<T>();
+            }
+            finally
+            {
+                // Release lock
+                Semaphore.Release();
+            }
+        }
+
+        public async Task<string?> SendAsync<T>(T message)
+        {
+            // Lock
+            Semaphore.Wait();
+            try
+            {
+                await SendCommandAsync<T>(message);
+                return await ReceiveStringResultAsync();
+            }
+            finally
+            {
+                // Release lock
+                Semaphore.Release();
+            }
+        }
+
+        public async Task<U?> SendAsync<T,U>(T message)
+        {
+            // Lock
+            Semaphore.Wait();
+            try
+            {
+                await SendCommandAsync<T>(message);
+                return await ReceiveResultAsync<U>();
+            }
+            finally
+            {
+                // Release lock
+                Semaphore.Release();
+            }
         }
 
         public void Dispose()
