@@ -15,9 +15,7 @@ namespace CamillaDsp.Client
         private static T? HandleResult<T>(string methodString, string result)
         {
             var json = JsonDocument.Parse(result);
-            JsonElement element;
-
-            if (json.RootElement.TryGetProperty("Invalid", out element))
+            if (json.RootElement.TryGetProperty("Invalid", out JsonElement element))
             {
                 var error = element.Deserialize<Error>();
                 if (error != null)
