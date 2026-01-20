@@ -106,7 +106,7 @@ namespace CamillaDsp.Client
         public async Task<string?> SendAsync(string message)
         {
             // Lock
-            Semaphore.Wait();
+            Semaphore.Wait(CancellationToken);
             try
             {
                 await SendCommandAsync(message);
@@ -122,7 +122,7 @@ namespace CamillaDsp.Client
         public async Task<T?> SendAsync<T>(string message)
         {
             // Lock
-            Semaphore.Wait();
+            Semaphore.Wait(CancellationToken);
             try
             {
                 await SendCommandAsync(message);
@@ -138,7 +138,7 @@ namespace CamillaDsp.Client
         public async Task<string?> SendAsync<T>(T message)
         {
             // Lock
-            Semaphore.Wait();
+            Semaphore.Wait(CancellationToken);
             try
             {
                 await SendCommandAsync<T>(message);
@@ -154,7 +154,7 @@ namespace CamillaDsp.Client
         public async Task<U?> SendAsync<T,U>(T message)
         {
             // Lock
-            Semaphore.Wait();
+            Semaphore.Wait(CancellationToken);
             try
             {
                 await SendCommandAsync<T>(message);
