@@ -6,7 +6,7 @@ namespace CamillaDsp.Client
 {
     public class CamillaDspClient(string url) : WebSocketClient(url)
     {
-        public async Task<T?> Get<T>(GetMethods method)
+        protected async Task<T?> Get<T>(GetMethods method)
         {
             var methodString = method.ToString();
 
@@ -30,7 +30,7 @@ namespace CamillaDsp.Client
             return default;
         }
 
-        public async Task Set<T>(SetMethods method, T value)
+        protected async Task Set<T>(SetMethods method, T value)
         {
             var methodString = method.ToString();
             var data = new Dictionary<string, object?> { { methodString, value } };
@@ -64,6 +64,26 @@ namespace CamillaDsp.Client
         public async Task SetUpdateIntervalAsync(int interval)
         {
             await Set<int>(SetMethods.SetUpdateInterval, interval);
+        }
+
+        public async Task<State?> GetState()
+        {
+            return await Get<State>(GetMethods.GetState);
+        }
+
+        public async Task<StopReason?> GetStopReason()
+        {
+            return await Get<StopReason>(GetMethods.GetStopReason);
+        }
+
+        public async Task<int?> GetCaptureRate()
+        {
+            return await Get<int>(GetMethods.GetCaptureRate);
+        }
+
+        public async Task<string[][]?> GetSupportedDeviceTypes()
+        {
+            return await Get<string[][]>(GetMethods.GetSupportedDeviceTypes);
         }
     }
 }

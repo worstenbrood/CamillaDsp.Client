@@ -9,7 +9,11 @@ namespace CamillaDsp.Client
     public enum GetMethods
     {
         GetVersion,
-        GetUpdateInterval
+        GetUpdateInterval,
+        GetState,
+        GetStopReason,
+        GetCaptureRate,
+        GetSupportedDeviceTypes
     }
 
     public enum SetMethods
