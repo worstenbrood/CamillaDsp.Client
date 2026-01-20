@@ -3,6 +3,7 @@ using CamillaDsp.Client.Models.Config;
 using System.Net.WebSockets;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading;
 
 namespace CamillaDsp.Client
 {
@@ -12,6 +13,8 @@ namespace CamillaDsp.Client
     /// <param name="url"></param>
     public class CamillaDspClient(string url) : WebSocketClient(url)
     {
+        public SemaphoreSlim _semaphore = new (1, 1);
+
         private static T? HandleResult<T>(string methodString, string result)
         {
             var json = JsonDocument.Parse(result);
@@ -40,39 +43,68 @@ namespace CamillaDsp.Client
         protected async Task<T?> Get<T>(GetMethods method)
         {
             var methodString = method.ToString();
+            string? result;
 
-            await SendCommandAsync($"\"{methodString}\"");
-            var result = await ReceiveStringResultAsync();
-            if (result != null)
+            // Lock
+            _semaphore.Wait();
+
+            try
             {
-                return HandleResult<T>(methodString, result);
+                await SendCommandAsync($"\"{methodString}\"");
+                result = await ReceiveStringResultAsync();
+            }
+            finally
+            { 
+                // Release
+                _semaphore.Release();
             }
 
-            return default;
+            return result != null ? HandleResult<T>(methodString, result) : default;
         }
 
         protected async Task<U?> Get<T, U>(GetMethods method, T value)
         {
             var methodString = method.ToString();
             var data = new Dictionary<string, object?> { { methodString, value } };
-            await SendCommandAsync(data);
-                        
-            var result = await ReceiveStringResultAsync();
-            if (result != null)
+            string? result;
+
+            // Lock
+            _semaphore.Wait();
+
+            try
             {
-                return HandleResult<U>(methodString, result);
+                await SendCommandAsync(data);
+                result = await ReceiveStringResultAsync();
+            }
+            finally
+            {
+                // Release
+                _semaphore.Release();
             }
 
-            return default;
+            return result != null ? HandleResult<U>(methodString, result) : default;
         }
 
         protected async Task Set<T>(SetMethods method, T value)
         {
             var methodString = method.ToString();
             var data = new Dictionary<string, object?> { { methodString, value } };
-            await SendCommandAsync(data);
+            string? result;
 
-            var result = await ReceiveStringResultAsync();
+            // Lock
+            _semaphore.Wait();
+
+            try
+            {
+                await SendCommandAsync(data);
+                result = await ReceiveStringResultAsync();
+            }
+            finally
+            {
+                // Release
+                _semaphore.Release();
+            }
+            
             if (result != null)
             {
                 HandleResult<T>(methodString, result);
