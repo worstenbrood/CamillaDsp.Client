@@ -15,8 +15,8 @@
 	<PropertyGroup>
 		<Title>CamillaDsp.Client</Title>
 		<PackageId>CamillaDsp.Client</PackageId>
-		<AssemblyVersion>1.0.2.0</AssemblyVersion>
-		<VersionPrefix>1.0.2</VersionPrefix>
+		<AssemblyVersion>1.0.3.0</AssemblyVersion>
+		<VersionPrefix>1.0.3</VersionPrefix>
 		<VersionSuffix></VersionSuffix>
 		<AssemblyTitle>CamillaDsp.Client</AssemblyTitle>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
