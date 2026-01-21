@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace CamillaDsp.Client.Models.Config
 {
@@ -11,6 +12,6 @@ namespace CamillaDsp.Client.Models.Config
         public bool? Mute { get; set; }
 
         [JsonPropertyName("sources")]
-        public Source[]? Sources { get; set; }
+        public List<Source>? Sources { get; set; }
     }
 }

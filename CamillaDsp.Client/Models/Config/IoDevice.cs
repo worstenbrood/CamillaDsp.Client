@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace CamillaDsp.Client.Models.Config
 {
@@ -60,7 +61,7 @@ namespace CamillaDsp.Client.Models.Config
         public bool? Wavheader { get; set; }
 
         [JsonPropertyName("labels")]
-        public string[]? Labels { get; set; }
+        public List<string>? Labels { get; set; }
 
         [JsonPropertyName("link_mute_control")]
         public string? LinkMuteControl { get; set; }

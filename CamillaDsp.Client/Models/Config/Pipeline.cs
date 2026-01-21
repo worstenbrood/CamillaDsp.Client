@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace CamillaDsp.Client.Models.Config
 {
@@ -12,11 +13,8 @@ namespace CamillaDsp.Client.Models.Config
 
     public class Pipeline
     {
-        [JsonPropertyName("bypassed")]
-        public bool? Bypassed { get; set; }
-
-        [JsonPropertyName("channels")]
-        public int[]? Channels { get; set; }
+        [JsonPropertyName("type")]
+        public PipelineTypes? Type { get; set; }
 
         [JsonPropertyName("description")]
         public string? Description { get; set; }
@@ -24,10 +22,13 @@ namespace CamillaDsp.Client.Models.Config
         [JsonPropertyName("name")]
         public string? Name { get; set; }
 
-        [JsonPropertyName("names")]
-        public string[]? Names { get; set; }
+        [JsonPropertyName("channels")]
+        public List<int>? Channels { get; set; }
 
-        [JsonPropertyName("type")]
-        public PipelineTypes? Type { get; set; }
+        [JsonPropertyName("bypassed")]
+        public bool? Bypassed { get; set; }
+       
+        [JsonPropertyName("names")]
+        public List<string>? Names { get; set; }
     }
 }

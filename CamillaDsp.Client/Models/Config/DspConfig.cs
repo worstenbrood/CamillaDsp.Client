@@ -37,7 +37,7 @@ namespace CamillaDsp.Client.Models.Config
         /// Pipelines
         /// </summary>
         [JsonPropertyName("pipeline")]
-        public Pipeline[]? Pipeline { get; set; }
+        public List<Pipeline>? Pipeline { get; set; }
 
         /// <summary>
         /// Return this object serialized as a JSON string.

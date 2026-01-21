@@ -12,7 +12,5 @@ namespace CamillaDsp.Client.Models.Config
 
         [JsonPropertyName("channels")]
         public Channels? Channels { get; set; }
-
-
     }
 }
