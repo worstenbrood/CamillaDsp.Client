@@ -18,10 +18,12 @@ public class Program
         var volume = await client.GetVolume();
         sb.AppendLine($"volume: {volume}dB");
         
-        await client.SetVolume(volume.GetValueOrDefault() + 0.01f);
+        await client.SetVolume(volume.GetValueOrDefault() - 0.01f);
         
         sb.AppendLine($"volume: {await client.GetVolume()}dB");
         sb.AppendLine($"uodate interval: {await client.GetUpdateIntervalAsync()}ms");
+        sb.AppendLine($"config file: {await client.GetConfigFilePath()}");
+        sb.AppendLine($"config title: {await client.GetConfigTitle()}");
         sb.AppendLine($"elapsed: {sw.ElapsedMilliseconds}ms");
         Console.WriteLine(sb.ToString());
     }

@@ -2,7 +2,7 @@
 
 namespace CamillaDsp.Client.Models.Config
 {
-    public class ProcessorDefinition
+    public class Processor
     {
         [JsonPropertyName("description")]
         public string? Description { get; set; }

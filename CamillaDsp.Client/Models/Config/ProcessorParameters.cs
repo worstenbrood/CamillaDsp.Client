@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace CamillaDsp.Client.Models.Config
 {
@@ -21,10 +20,10 @@ namespace CamillaDsp.Client.Models.Config
         public double? MakeupGain { get; set; }
 
         [JsonPropertyName("monitor_channels")]
-        public List<int>? MonitorChannels { get; set; }
+        public int[]? MonitorChannels { get; set; }
 
         [JsonPropertyName("process_channels")]
-        public List<int>? ProcessChannels { get; set; }
+        public int[]? ProcessChannels { get; set; }
 
         [JsonPropertyName("release")]
         public double? Release { get; set; }

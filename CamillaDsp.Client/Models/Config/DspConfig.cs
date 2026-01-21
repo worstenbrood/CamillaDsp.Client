@@ -5,35 +5,37 @@ namespace CamillaDsp.Client.Models.Config
 {
     public class DspConfig
     {
+        [JsonPropertyName("title")]
+        public string? Title { get; set; }
+
         [JsonPropertyName("description")]
         public string? Description { get; set; }
 
         [JsonPropertyName("devices")]
-        public DeviceConfig? Devices { get; set; }
+        public Devices? Devices { get; set; }
 
         /// <summary>
         /// Dynamic object keyed by filter name (e.g. "Unnamed Filter 1")
         /// </summary>
         [JsonPropertyName("filters")]
-        public Dictionary<string, FilterDefinition>? Filters { get; set; }
+        public Dictionary<string, Filter>? Filters { get; set; }
 
         /// <summary>
         /// Present as an empty object in the sample JSON.
-        /// If you later learn the schema, replace object with a concrete type.
         /// </summary>
         [JsonPropertyName("mixers")]
-        public Dictionary<string, object?>? Mixers { get; set; }
-
-        [JsonPropertyName("pipeline")]
-        public List<Pipeline>? Pipeline { get; set; }
+        public Dictionary<string, Mixer>? Mixers { get; set; }
 
         /// <summary>
         /// Dynamic object keyed by processor name (e.g. "Unnamed Processor 1")
         /// </summary>
         [JsonPropertyName("processors")]
-        public Dictionary<string, ProcessorDefinition>? Processors { get; set; }
+        public Dictionary<string, Processor>? Processors { get; set; }
 
-        [JsonPropertyName("title")]
-        public string? Title { get; set; }
+        /// <summary>
+        /// Pipelines
+        /// </summary>
+        [JsonPropertyName("pipeline")]
+        public Pipeline[]? Pipeline { get; set; }
     }
 }

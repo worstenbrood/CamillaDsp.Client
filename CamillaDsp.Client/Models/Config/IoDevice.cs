@@ -1,21 +1,66 @@
-﻿using System.Collections.Generic;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace CamillaDsp.Client.Models.Config
 {
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public enum DeviceTypes
+    {
+        RawFile,
+        WavFile,
+        File,
+        SignalGenerator,
+        Stdin,
+        Stdout,
+        Bluez,
+        Jack,
+        Wasapi,
+        CoreAudio,
+        Alsa,
+        Pulse,
+    }
+
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public enum Formats
+    {
+        S16LE,
+        S24LE,
+        S24LE3,
+        S32LE,
+        FLOAT32LE,
+        FLOAT64LE,
+    }
+
     public class IoDevice
     {
+        [JsonPropertyName("type")]
+        public DeviceTypes? Type { get; set; }
+
         [JsonPropertyName("channels")]
         public int? Channels { get; set; }
 
         [JsonPropertyName("device")]
         public string? Device { get; set; }
 
+        [JsonPropertyName("filename")]
+        public string? Filename { get; set; }
+
         [JsonPropertyName("format")]
-        public string? Format { get; set; }
+        public Formats? Format { get; set; }
+
+        [JsonPropertyName("skip_bytes")]
+        public int? SkipBytes { get; set; }
+
+        [JsonPropertyName("read_bytes")]
+        public int? ReadBytes { get; set; }
+
+        [JsonPropertyName("extra_samples")]
+        public int? ExtraSamples { get; set; }
+
+        [JsonPropertyName("wav_headder")]
+        public bool? Wavheader { get; set; }
 
         [JsonPropertyName("labels")]
-        public List<string>? Labels { get; set; }
+        public string[]? Labels { get; set; }
 
         [JsonPropertyName("link_mute_control")]
         public string? LinkMuteControl { get; set; }
@@ -26,7 +71,7 @@ namespace CamillaDsp.Client.Models.Config
         [JsonPropertyName("stop_on_inactive")]
         public bool? StopOnInactive { get; set; }
 
-        [JsonPropertyName("type")]
-        public string? Type { get; set; }
+        [JsonPropertyName("signal")]
+        public Signal? Signal { get; set; }
     }
 }

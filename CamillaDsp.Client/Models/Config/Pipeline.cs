@@ -1,15 +1,22 @@
-﻿using System.Collections.Generic;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace CamillaDsp.Client.Models.Config
 {
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public enum PipelineTypes
+    {
+        Processor,
+        Filter,
+        Mixer,
+    }
+
     public class Pipeline
     {
         [JsonPropertyName("bypassed")]
         public bool? Bypassed { get; set; }
 
         [JsonPropertyName("channels")]
-        public List<int>? Channels { get; set; }
+        public int[]? Channels { get; set; }
 
         [JsonPropertyName("description")]
         public string? Description { get; set; }
@@ -18,9 +25,9 @@ namespace CamillaDsp.Client.Models.Config
         public string? Name { get; set; }
 
         [JsonPropertyName("names")]
-        public List<string>? Names { get; set; }
+        public string[]? Names { get; set; }
 
         [JsonPropertyName("type")]
-        public string? Type { get; set; }
+        public PipelineTypes? Type { get; set; }
     }
 }
