@@ -1,14 +1,12 @@
-﻿using System;
-using System.Text;
-using System.Collections.Generic;
-using CamillaDsp.Client.Models.Config.Filters;
+﻿using CamillaDsp.Client.Models.Config.Filters;
 
 namespace CamillaDsp.Client.Factories
 {
     public class FilterFactory
     {
         /// <summary>
-        /// Create an high pass filter
+        /// Second order high/lowpass filters (12dB/oct)
+        /// Defined by cutoff frequency <paramref name="frequency"/> and Q-value <paramref name="q"/>.
         /// </summary>
         /// <param name="frequency">Frequency</param>
         /// <param name="q">Q</param>
@@ -25,7 +23,8 @@ namespace CamillaDsp.Client.Factories
         };
 
         /// <summary>
-        /// Create a low pass filter
+        /// Second order high/lowpass filters (12dB/oct)
+        /// Defined by cutoff frequency <paramref name="frequency"/> and Q-value <paramref name="q"/>.
         /// </summary>
         /// <param name="frequency">Frequency</param>
         /// <param name="q">Q</param>
@@ -39,13 +38,11 @@ namespace CamillaDsp.Client.Factories
                 Frequency = frequency,
                 Q = q,
             }
-        };        
+        };
 
         /// <summary>
-        /// Create a free filter
+        /// Given by normalized coefficients <paramref name="a1"/>, <paramref name="a2"/>, <paramref name="b0"/>, <paramref name="b1"/>, <paramref name="b2"/>.
         /// </summary>
-        /// <param name="frequency">Frequency</param>
-        /// <param name="q">Q</param>
         /// <returns></returns>
         public static Filter CreateFreeFilter(float a1, float a2, float b0, float b1, float b2) => new ()
         {
@@ -62,10 +59,16 @@ namespace CamillaDsp.Client.Factories
         };
 
         /// <summary>
-        /// Create a peaking filter
+        /// A parametric peaking filter with selectable gain <paramref name="gain"/> at a given frequency <paramref name="frequency"/> 
+        /// with a bandwidth given either by the Q-value <paramref name="q"/> or <paramref name="bandwidth"/> in octaves bandwidth. 
+        /// Note that bandwidth and Q-value are inversely related, a small bandwidth corresponds 
+        /// to a large Q-value etc. Use positive gain values to boost, and negative values to 
+        /// attenuate.
         /// </summary>
         /// <param name="frequency">Frequency</param>
+        /// <param name="gain"></param>
         /// <param name="q">Q</param>
+        /// <param name="bandwidth"></param>
         /// <returns></returns>
         public static Filter CreatePeakingFilter(int frequency, float gain, float? q = null, float? bandwidth = null) => new()
         {
@@ -81,10 +84,16 @@ namespace CamillaDsp.Client.Factories
         };
 
         /// <summary>
-        /// Create a high shelf filter
+        /// High / Low uniformly affects the high / low frequencies respectively while leaving 
+        /// the low / high part unaffected. 
+        /// In between there is a slope of variable steepness.
         /// </summary>
-        /// <param name="frequency">Frequency</param>
-        /// <param name="q">Q</param>
+        /// <param name="frequency">Center frequency of the sloping section.</param>
+        /// <param name="gain">The gain of the filter.</param>
+        /// <param name="slope">The steepness in dB/octave. Values up to around +-12 are usable.</param>
+        /// <param name="q">The Q-value and can be used instead of <paramref name="slope"/> to define 
+        /// the steepness of the filter. 
+        /// Only one of <paramref name="q"/> and <paramref name="slope"/> can be given.</param>
         /// <returns></returns>
         public static Filter CreateHighShelfFilter(int frequency, float gain, float? q = null, int? slope = null) => new()
         {
@@ -100,10 +109,16 @@ namespace CamillaDsp.Client.Factories
         };
 
         /// <summary>
-        /// Create a high shelf filter
+        /// High / Low uniformly affects the high / low frequencies respectively while leaving 
+        /// the low / high part unaffected. 
+        /// In between there is a slope of variable steepness.
         /// </summary>
-        /// <param name="frequency">Frequency</param>
-        /// <param name="q">Q</param>
+        /// <param name="frequency">Center frequency of the sloping section.</param>
+        /// <param name="gain">The gain of the filter.</param>
+        /// <param name="slope">The steepness in dB/octave. Values up to around +-12 are usable.</param>
+        /// <param name="q">The Q-value and can be used instead of <paramref name="slope"/> to define 
+        /// the steepness of the filter. 
+        /// Only one of <paramref name="q"/> and <paramref name="slope"/> can be given.</param>
         /// <returns></returns>
         public static Filter CreateLowShelfFilter(int frequency, float gain, float? q = null, int? slope = null) => new()
         {
@@ -119,10 +134,10 @@ namespace CamillaDsp.Client.Factories
         };
 
         /// <summary>
-        /// Create a high shelf FO filter
+        /// First order (6dB/oct) versions of the shelving functions.
         /// </summary>
-        /// <param name="frequency">Frequency</param>
-        /// <param name="q">Q</param>
+        /// <param name="frequency">Center frequency of the sloping section./param>
+        /// <param name="gain">The gain of the filter.</param>
         /// <returns></returns>
         public static Filter CreateHighShelfFOFilter(int frequency, float gain) => new()
         {
@@ -136,10 +151,10 @@ namespace CamillaDsp.Client.Factories
         };
 
         /// <summary>
-        /// Create a high shelf FO filter
+        /// First order (6dB/oct) versions of the shelving functions.
         /// </summary>
-        /// <param name="frequency">Frequency</param>
-        /// <param name="q">Q</param>
+        /// <param name="frequency">Center frequency of the sloping section./param>
+        /// <param name="gain">The gain of the filter.</param>
         /// <returns></returns>
         public static Filter CreateLowShelfFOFilter(int frequency, float gain) => new()
         {
@@ -153,7 +168,16 @@ namespace CamillaDsp.Client.Factories
         };
 
         /// <summary>
-        /// Create a delay filter
+        /// The delay filter provides a delay in milliseconds, millimetres or samples. 
+        /// The unit can be <see cref="Units.ms"/>, <see cref="Units.mm"/> or <see cref="Units.samples"/>, and if left out it defaults to <see cref="Units.ms"/>. 
+        /// When giving the delay in millimetres, the speed of sound of is assumed 
+        /// to be 343 m/s (dry air at 20 degrees Celsius).
+        /// If the <paramref name="subsample"/> parameter is set to true, then it will use use an IIR filter 
+        /// to achieve subsample delay precision.
+        /// If set to false, the value will instead be rounded to the nearest number of full 
+        /// samples.
+        /// This is a little faster and should be used if subsample precision is not required.
+        /// The <paramref name="delay"/> value must be positive or zero.
         /// </summary>
         /// <param name="delay"></param>
         /// <param name="unit"></param>
@@ -207,7 +231,11 @@ namespace CamillaDsp.Client.Factories
         };
 
         /// <summary>
-        /// Create a peaking filter
+        /// A parametric peaking filter with selectable gain gain at a given frequency freq with 
+        /// a bandwidth given either by the Q-value q or bandwidth in octaves bandwidth. 
+        /// Note that bandwidth and Q-value are inversely related, a small bandwidth corresponds 
+        /// to a large Q-value etc. 
+        /// Use positive gain values to boost, and negative values to attenuate.
         /// </summary>
         /// <param name="frequency">Frequency</param>
         /// <param name="q">Q</param>
@@ -225,7 +253,7 @@ namespace CamillaDsp.Client.Factories
         };
 
         /// <summary>
-        /// Create a all pass fo filter
+        /// Defined by frequency, freq and filter order.
         /// </summary>
         /// <param name="frequency">Frequency</param>
         /// <param name="q">Q</param>
@@ -241,7 +269,7 @@ namespace CamillaDsp.Client.Factories
         };
 
         /// <summary>
-        /// Create a butterworth high pass filter
+        /// Defined by frequency, freq and filter order.
         /// </summary>
         /// <param name="frequency">Frequency</param>
         /// <param name="q">Q</param>
@@ -275,7 +303,8 @@ namespace CamillaDsp.Client.Factories
         };
 
         /// <summary>
-        /// Create a Linkwitz-Riley high pass filter
+        /// Defined by frequency, freq and filter order.
+        /// Note, the order must be even.
         /// </summary>
         /// <param name="frequency">Frequency</param>
         /// <param name="q">Q</param>
@@ -292,7 +321,8 @@ namespace CamillaDsp.Client.Factories
         };
 
         /// <summary>
-        /// Create a Linkwitz-Riley low pass filter
+        /// Defined by frequency, freq and filter order.
+        /// Note, the order must be even.
         /// </summary>
         /// <param name="frequency">Frequency</param>
         /// <param name="q">Q</param>
@@ -309,7 +339,15 @@ namespace CamillaDsp.Client.Factories
         };
 
         /// <summary>
-        /// Create a tilt filter
+        /// he "Tilt" filter applies a tilt across the entire audible spectrum. 
+        /// It takes a single parameter gain. A positive value gives a positive tilt, 
+        /// that boosts the high end of the spectrum and attenuates the low. 
+        /// A negative value gives the opposite result.
+        /// The gain value is the difference in gain between the highest and lowest frequencies.
+        /// It's applied symmetrically, so a value of +10 dB will result in 5 dB of boost at high 
+        /// frequencies, and 5 dB of attenuation at low frequencies. 
+        /// In between the gain changes linearly, with a midpoint at about 600 Hz.
+        /// The gain value is limited to +- 100 dB.
         /// </summary>
         /// <param name="frequency">Frequency</param>
         /// <param name="q">Q</param>
@@ -325,7 +363,17 @@ namespace CamillaDsp.Client.Factories
         };
 
         /// <summary>
-        /// Create a FivePointPeq filter
+        /// This filter combo is mainly meant to be created by guis. 
+        /// It defines a 5-point (or band) parametric equalizer by combining a Lowshelf, a
+        /// Highshelf and three Peaking filters.
+        /// Each individual filter is defined by frequency, gain and q.
+        /// The parameter names are:
+        ///
+        /// Lowshelf: fls, gls, qls
+        /// Peaking 1: fp1, gp1, qp1
+        /// Peaking 2: fp2, gp2, qp2
+        /// Peaking 3: fp3, gp3, qp3
+        /// Highshelf: fhs, ghs, qhs
         /// </summary>
         /// <param name="frequency">Frequency</param>
         /// <param name="q">Q</param>
