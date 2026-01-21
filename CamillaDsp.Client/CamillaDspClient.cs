@@ -401,8 +401,20 @@ namespace CamillaDsp.Client
         /// </summary>
         /// <param name="deltaDb"></param>
         /// <returns></returns>
-        public async Task AdjustVolume(float[] deltaDb) => 
-            await Send(Methods.AdjustVolume, deltaDb);
+        public async Task AdjustVolume(float deltaDb) => 
+            await Send(Methods.AdjustVolume, new[] { deltaDb });
+
+        /// <summary>
+        /// Change the volume setting by the given number of dB, positive or negative. 
+        /// The resulting volume is clamped to the range -150 to +50 dB. 
+        /// The allowed range can be reduced by providing two more values, for minimum and maximum.
+        /// </summary>
+        /// <param name="deltaDb">dB</param>
+        /// <param name="min">Minimum</param>
+        /// <param name="max">Maximum</param>
+        /// <returns></returns>
+        public async Task AdjustVolume(float deltaDb, float min, float max) =>
+            await Send(Methods.AdjustVolume, new[] { deltaDb, min, max });
 
         /// <summary>
         /// Get the current mute setting.
