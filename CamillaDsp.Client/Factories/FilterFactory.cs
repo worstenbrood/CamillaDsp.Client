@@ -169,5 +169,190 @@ namespace CamillaDsp.Client.Factories
                 Subsample = subsample,
             }
         };
+
+        /// <summary>
+        /// Create a notch filter
+        /// </summary>
+        /// <param name="frequency">Frequency</param>
+        /// <param name="q">Q</param>
+        /// <returns></returns>
+        public static Filter CreateNotchFilter(int frequency, float? q = null, float? bandwidth = null) => new()
+        {
+            Type = FilterTypes.Biquad,
+            Parameters = new FilterParameters
+            {
+                Type = FilterParameterTypes.Notch,
+                Frequency = frequency,
+                Q = q,
+                Bandwidth = bandwidth,
+            }
+        };
+
+        /// <summary>
+        /// Create a band pass filter
+        /// </summary>
+        /// <param name="frequency">Frequency</param>
+        /// <param name="q">Q</param>
+        /// <returns></returns>
+        public static Filter CreateBandPassFilter(int frequency, float? q = null, float? bandwidth = null) => new()
+        {
+            Type = FilterTypes.Biquad,
+            Parameters = new FilterParameters
+            {
+                Type = FilterParameterTypes.Bandpass,
+                Frequency = frequency,
+                Q = q,
+                Bandwidth = bandwidth,
+            }
+        };
+
+        /// <summary>
+        /// Create a peaking filter
+        /// </summary>
+        /// <param name="frequency">Frequency</param>
+        /// <param name="q">Q</param>
+        /// <returns></returns>
+        public static Filter CreateAllPassFilter(int frequency, float? q = null, float? bandwidth = null) => new()
+        {
+            Type = FilterTypes.Biquad,
+            Parameters = new FilterParameters
+            {
+                Type = FilterParameterTypes.Allpass,
+                Frequency = frequency,
+                Q = q,
+                Bandwidth = bandwidth,
+            }
+        };
+
+        /// <summary>
+        /// Create a all pass fo filter
+        /// </summary>
+        /// <param name="frequency">Frequency</param>
+        /// <param name="q">Q</param>
+        /// <returns></returns>
+        public static Filter CreateAllPassFOFilter(int frequency) => new()
+        {
+            Type = FilterTypes.Biquad,
+            Parameters = new FilterParameters
+            {
+                Type = FilterParameterTypes.AllpassFO,
+                Frequency = frequency,
+            }
+        };
+
+        /// <summary>
+        /// Create a butterworth high pass filter
+        /// </summary>
+        /// <param name="frequency">Frequency</param>
+        /// <param name="q">Q</param>
+        /// <returns></returns>
+        public static Filter CreateButterworthHighPassFilter(int frequency, int order) => new()
+        {
+            Type = FilterTypes.Biquad,
+            Parameters = new FilterParameters
+            {
+                Type = FilterParameterTypes.ButterworthHighpass,
+                Frequency = frequency,
+                Order = order
+            }
+        };
+
+        /// <summary>
+        /// Create a butterworth low pass filter
+        /// </summary>
+        /// <param name="frequency">Frequency</param>
+        /// <param name="q">Q</param>
+        /// <returns></returns>
+        public static Filter CreateButterworthLowPassFilter(int frequency, int order) => new()
+        {
+            Type = FilterTypes.Biquad,
+            Parameters = new FilterParameters
+            {
+                Type = FilterParameterTypes.ButterworthLowpass,
+                Frequency = frequency,
+                Order = order
+            }
+        };
+
+        /// <summary>
+        /// Create a Linkwitz-Riley high pass filter
+        /// </summary>
+        /// <param name="frequency">Frequency</param>
+        /// <param name="q">Q</param>
+        /// <returns></returns>
+        public static Filter CreateLinkwitzRileyHighPassFilter(int frequency, int order) => new()
+        {
+            Type = FilterTypes.Biquad,
+            Parameters = new FilterParameters
+            {
+                Type = FilterParameterTypes.LinkwitzRileyHighpass,
+                Frequency = frequency,
+                Order = order
+            }
+        };
+
+        /// <summary>
+        /// Create a Linkwitz-Riley low pass filter
+        /// </summary>
+        /// <param name="frequency">Frequency</param>
+        /// <param name="q">Q</param>
+        /// <returns></returns>
+        public static Filter CreateLinkwitzRileyLowPassFilter(int frequency, int order) => new()
+        {
+            Type = FilterTypes.Biquad,
+            Parameters = new FilterParameters
+            {
+                Type = FilterParameterTypes.LinkwitzRileyLowpass,
+                Frequency = frequency,
+                Order = order
+            }
+        };
+
+        /// <summary>
+        /// Create a tilt filter
+        /// </summary>
+        /// <param name="frequency">Frequency</param>
+        /// <param name="q">Q</param>
+        /// <returns></returns>
+        public static Filter CreateTiltFilter(float gain) => new()
+        {
+            Type = FilterTypes.Biquad,
+            Parameters = new FilterParameters
+            {
+                Type = FilterParameterTypes.Tilt,
+                Gain = gain
+            }
+        };
+
+        /// <summary>
+        /// Create a FivePointPeq filter
+        /// </summary>
+        /// <param name="frequency">Frequency</param>
+        /// <param name="q">Q</param>
+        /// <returns></returns>
+        public static Filter CreateFivePointPeqFilter(float fls, float gls, float qls, float fp1, float gp1, float qp1,
+           float fp2, float gp2, float qp2, float fp3, float gp3, float qp3, float fhs, float ghs, float qhs) => new()
+        {
+            Type = FilterTypes.Biquad,
+            Parameters = new FilterParameters
+            {
+                Type = FilterParameterTypes.FivePointPeq,
+                Fls = fls,
+                Gls = gls,
+                Qls = qls,
+                Fp1 = fp1,
+                Gp1 = gp1,
+                Qp1 = qp1,
+                Fp2 = fp2,
+                Gp2 = gp2,
+                Qp2 = qp2,
+                Fp3 = fp3,
+                Gp3 = gp3,
+                Qp3 = qp3,
+                Fhs = fhs,
+                Ghs = ghs,
+                Qhs = qhs
+            }
+        };
     }
 }
