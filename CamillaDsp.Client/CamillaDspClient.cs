@@ -153,10 +153,6 @@ namespace CamillaDsp.Client
         /// <summary>
         /// Get the update interval in ms for capture rate and signal range. 
         /// </summary>
-        /// <returns>
-        /// Return a list containing two lists of strings (for playback and capture), 
-        /// like [['File', 'Stdout', 'Alsa'], ['File', 'Stdin', 'Alsa']].
-        /// </returns>
         public async Task<int?> GetUpdateIntervalAsync() => await Send<int>(Methods.GetUpdateInterval);
 
         /// <summary>
