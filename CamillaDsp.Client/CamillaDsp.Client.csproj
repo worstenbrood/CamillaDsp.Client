@@ -9,6 +9,7 @@
 	<ItemGroup>
 		<!-- Go one folder up to find the file and pack it at the root -->
 		<None Include="../README.md" Pack="true" PackagePath="\" />
+		<None Include="../LICENSE.txt" Pack="true" PackagePath="\" />
 	</ItemGroup>
 	
 	<!--Package properties-->
@@ -19,6 +20,7 @@
 		<VersionPrefix>1.0.7</VersionPrefix>
 		<VersionSuffix></VersionSuffix>
 		<AssemblyTitle>CamillaDsp.Client</AssemblyTitle>
+		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<Authors>worstenbrood</Authors>
 		<Copyright>worstenbrood@gmail.com © 2026</Copyright>
