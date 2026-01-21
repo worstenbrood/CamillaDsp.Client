@@ -541,11 +541,7 @@ namespace CamillaDsp.Client
         public async Task<DspConfig?> GetConfigObject() 
         {
             var result = await GetConfigJson();
-            if (result == null)
-            {
-                return null;
-            }
-            return Serializer.Deserialize<DspConfig>(result.Trim('\"'));
+            return result != null ? Serializer.Deserialize<DspConfig>(result.Trim('\"')) : null;
         }
 
         /// <summary>

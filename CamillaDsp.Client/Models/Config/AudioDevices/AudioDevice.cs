@@ -58,7 +58,7 @@ namespace CamillaDsp.Client.Models.Config.AudioDevices
         public int? ExtraSamples { get; set; }
 
         [JsonPropertyName("wav_header")]
-        public bool? WavHeader { get; set; }
+        public bool? WaveHeader { get; set; }
 
         [JsonPropertyName("labels")]
         public List<string>? Labels { get; set; }

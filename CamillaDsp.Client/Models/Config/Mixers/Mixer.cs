@@ -9,7 +9,7 @@ namespace CamillaDsp.Client.Models.Config.Mixers
         public string? Description { get; set; }
 
         [JsonPropertyName("labels")]
-        public string[]? Labels { get; set; }
+        public List<string>? Labels { get; set; }
 
         [JsonPropertyName("channels")]
         public Channels? Channels { get; set; }
