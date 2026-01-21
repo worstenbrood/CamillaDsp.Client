@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace CamillaDsp.Client
+namespace CamillaDsp.Client.Factories
 {
     public class FilterFactory
     {
