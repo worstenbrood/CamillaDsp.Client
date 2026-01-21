@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace CamillaDsp.Client.Models.Config
+namespace CamillaDsp.Client.Models.Config.AudioDevices
 {
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum ResamplerTypes
