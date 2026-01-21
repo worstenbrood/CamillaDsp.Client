@@ -21,7 +21,7 @@ namespace CamillaDsp.Client.Models.Config
     }
 
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    public enum FiltterParameterTypes
+    public enum FilterParameterTypes
     {
         Raw,
         Wav,
@@ -69,7 +69,7 @@ namespace CamillaDsp.Client.Models.Config
     {
 
         [JsonPropertyName("type")]
-        public FilterTypes? Type { get; set; }
+        public FilterParameterTypes? Type { get; set; }
 
         // Gain
         [JsonPropertyName("gain")]
