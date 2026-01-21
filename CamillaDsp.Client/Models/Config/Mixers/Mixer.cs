@@ -1,6 +1,7 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
-namespace CamillaDsp.Client.Models.Config
+namespace CamillaDsp.Client.Models.Config.Mixers
 {
     public class Mixer
     {
@@ -12,5 +13,8 @@ namespace CamillaDsp.Client.Models.Config
 
         [JsonPropertyName("channels")]
         public Channels? Channels { get; set; }
+
+        [JsonPropertyName("mapping")]
+        public List<Mapping>? Mapping { get; set; }
     }
 }

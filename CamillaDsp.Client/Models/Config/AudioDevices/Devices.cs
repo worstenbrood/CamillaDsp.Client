@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace CamillaDsp.Client.Models.Config
+namespace CamillaDsp.Client.Models.Config.AudioDevices
 {
     public class Devices
     {
@@ -8,7 +8,7 @@ namespace CamillaDsp.Client.Models.Config
         public int? AdjustPeriod { get; set; }
 
         [JsonPropertyName("capture")]
-        public IoDevice? Capture { get; set; }
+        public AudioDevice? Capture { get; set; }
 
         [JsonPropertyName("capture_samplerate")]
         public int? CaptureSamplerate { get; set; }
@@ -39,7 +39,7 @@ namespace CamillaDsp.Client.Models.Config
         public bool? Multithreaded { get; set; }
 
         [JsonPropertyName("playback")]
-        public IoDevice? Playback { get; set; }
+        public AudioDevice? Playback { get; set; }
 
         /// <summary>
         /// The field queuelimit should normally be left out to use the default of 4. 

@@ -1,4 +1,4 @@
-﻿using CamillaDsp.Client.Models.Config;
+﻿using CamillaDsp.Client.Models.Config.Filters;
 using System;
 using System.Collections.Generic;
 using System.Text;

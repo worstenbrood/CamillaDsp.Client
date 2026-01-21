@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace CamillaDsp.Client.Models.Config
+namespace CamillaDsp.Client.Models.Config.Mixers
 {
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum ScaleTypes

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-namespace CamillaDsp.Client.Models.Config
+namespace CamillaDsp.Client.Models.Config.AudioDevices
 {
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum DeviceTypes
@@ -31,7 +31,7 @@ namespace CamillaDsp.Client.Models.Config
         FLOAT64LE,
     }
 
-    public class IoDevice
+    public class AudioDevice
     {
         [JsonPropertyName("type")]
         public DeviceTypes? Type { get; set; }

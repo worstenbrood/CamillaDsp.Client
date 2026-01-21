@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-namespace CamillaDsp.Client.Models.Config
+namespace CamillaDsp.Client.Models.Config.Processors
 {
     public class ProcessorParameters
     {

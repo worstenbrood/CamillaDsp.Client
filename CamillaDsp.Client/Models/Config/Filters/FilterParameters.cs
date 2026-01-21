@@ -1,6 +1,7 @@
-﻿using System.Text.Json.Serialization;
+﻿using CamillaDsp.Client.Models.Config.Mixers;
+using System.Text.Json.Serialization;
 
-namespace CamillaDsp.Client.Models.Config
+namespace CamillaDsp.Client.Models.Config.Filters
 {
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum Faders
@@ -67,7 +68,6 @@ namespace CamillaDsp.Client.Models.Config
 
     public class FilterParameters
     {
-
         [JsonPropertyName("type")]
         public FilterParameterTypes? Type { get; set; }
 
