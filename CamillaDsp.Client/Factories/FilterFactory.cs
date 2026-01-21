@@ -1,7 +1,7 @@
-﻿using CamillaDsp.Client.Models.Config.Filters;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Text;
+using System.Collections.Generic;
+using CamillaDsp.Client.Models.Config.Filters;
 
 namespace CamillaDsp.Client.Factories
 {
@@ -91,11 +91,82 @@ namespace CamillaDsp.Client.Factories
             Type = FilterTypes.Biquad,
             Parameters = new FilterParameters
             {
-                Type = FilterParameterTypes.Peaking,
+                Type = FilterParameterTypes.Highshelf,
                 Frequency = frequency,
                 Gain = gain,
                 Q = q,
                 Slope = slope,
+            }
+        };
+
+        /// <summary>
+        /// Create a high shelf filter
+        /// </summary>
+        /// <param name="frequency">Frequency</param>
+        /// <param name="q">Q</param>
+        /// <returns></returns>
+        public static Filter CreateLowShelfFilter(int frequency, float gain, float? q = null, int? slope = null) => new()
+        {
+            Type = FilterTypes.Biquad,
+            Parameters = new FilterParameters
+            {
+                Type = FilterParameterTypes.LowShelf,
+                Frequency = frequency,
+                Gain = gain,
+                Q = q,
+                Slope = slope,
+            }
+        };
+
+        /// <summary>
+        /// Create a high shelf FO filter
+        /// </summary>
+        /// <param name="frequency">Frequency</param>
+        /// <param name="q">Q</param>
+        /// <returns></returns>
+        public static Filter CreateHighShelfFOFilter(int frequency, float gain) => new()
+        {
+            Type = FilterTypes.Biquad,
+            Parameters = new FilterParameters
+            {
+                Type = FilterParameterTypes.HighshelfFO,
+                Frequency = frequency,
+                Gain = gain,
+            }
+        };
+
+        /// <summary>
+        /// Create a high shelf FO filter
+        /// </summary>
+        /// <param name="frequency">Frequency</param>
+        /// <param name="q">Q</param>
+        /// <returns></returns>
+        public static Filter CreateLowShelfFOFilter(int frequency, float gain) => new()
+        {
+            Type = FilterTypes.Biquad,
+            Parameters = new FilterParameters
+            {
+                Type = FilterParameterTypes.LowshelfFO,
+                Frequency = frequency,
+                Gain = gain,
+            }
+        };
+
+        /// <summary>
+        /// Create a delay filter
+        /// </summary>
+        /// <param name="delay"></param>
+        /// <param name="unit"></param>
+        /// <param name="subsample"></param>
+        /// <returns></returns>
+        public static Filter CreateDelayFilter(float delay, Units unit = Units.ms, bool subsample = false) => new()
+        {
+            Type = FilterTypes.Delay,
+            Parameters = new FilterParameters
+            {
+                Delay = delay,
+                Unit = unit,
+                Subsample = subsample,
             }
         };
     }
