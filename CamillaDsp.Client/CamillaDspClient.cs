@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using CamillaDsp.Client.Base;
@@ -49,76 +50,105 @@ namespace CamillaDsp.Client
             // Parse json
             var json = JsonDocument.Parse(response);
 
-            // We received an error
-            if (json.RootElement.TryGetProperty(Constants.Json.Invalid, out JsonElement element))
+            // Check for method name property
+            if (json.RootElement.TryGetProperty(methodName, out JsonElement element))
             {
-                var error = element.Deserialize<Error>();
-                if (error != null)
-                {
-                    throw new CamillaDspException(methodName, error.Message);
-                }
-            }
-
-            // We received a reply
-            else if (json.RootElement.TryGetProperty(methodName, out element))
-            {
+                // Deserialize the value of the method property 
                 Result<T>? result = element.Deserialize<Result<T>>();
                 if (result != null && result.Status != null)
                 {
-                    if (result.Status != Result.Ok)
+                    // Success
+                    if (result.Status == Result.Ok)
                     {
-                        string message = $"{result.Status}";
-                        if (result.Value != null)
-                        {
-                            message += $": {result.Value}";
-                        }
-
-                        throw new CamillaDspException(methodName, message);
+                        // Return the received value
+                        return result.Value;
                     }
 
-                    return result.Value;
+                    // Error 
+                    string message = $"{result.Status}";
+                    if (result.Value != null)
+                    {
+                        // Append context of value if not null
+                        message += $": {result.Value}";
+                    }
+
+                    // Throw exception
+                    throw new CamillaDspException(methodName, message);
+                }
+            }
+
+            // Check for invalid property
+            else if (json.RootElement.TryGetProperty(C.Json.Invalid, out element))
+            {
+                // Deserialize error message
+                var error = element.Deserialize<Error>();
+                if (error != null)
+                {
+                    // Use returned error message in exception
+                    throw new CamillaDspException(methodName, error.Message);
                 }
             }
 
             return default;
         }
 
-        protected async Task<T?> Get<T>(GetMethods method)
-        {
-            var methodName = method.ToString();
-            string? result = await SendAsync($"\"{methodName}\"");
-            return HandleResponse<T>(methodName, result);
-        }
+        /// <summary>
+        /// Sends method <paramref name="method"/>.
+        /// Returns the repsonse as a nullable of type <typeparamref name="T"/>.
+        /// </summary>
+        /// <typeparam name="T">Type of the return value.</typeparam>
+        /// <param name="method"><see cref="Methods"/> to send.</param>
+        /// <returns>nullable of type <typeparamref name="T"/>.</returns>
+        protected async Task<T?> Send<T>(Enum method) => HandleResponse<T>
+        (
+            method.ToString(), 
+            await SendAsync($"\"{method}\"")
+        );
+        
+        /// <summary>
+        /// Sends method <paramref name="method"/> with a parameter of 
+        /// type <typeparamref name="T"/>.
+        /// Returns the response as a nullable of type <typeparamref name="U"/>.
+        /// </summary>
+        /// <typeparam name="T">Type of the parameter.</typeparam>
+        /// <typeparam name="U">Type of the return value.</typeparam>
+        /// <param name="method"><see cref="Methods"/> to send.</param>
+        /// <param name="value">Parameter value.</param>
+        /// <returns></returns>
+        protected async Task<U?> Send<T, U>(Enum method, T value) => HandleResponse<U>
+        (
+            method.ToString(), 
+            await SendAsync(
+                new Dictionary<string, object?> 
+                { 
+                    { method.ToString(), value } 
+                })
+        );
 
-        protected async Task<U?> Get<T, U>(GetMethods method, T value)
-        {
-            var methodName = method.ToString();
-            var data = new Dictionary<string, object?> { { methodName, value } };
-            string? result = await SendAsync(data);
-            return HandleResponse<U>(methodName, result);
-        }
-
-        protected async Task Set<T>(SetMethods method, T value)
-        {
-            var methodString = method.ToString();
-            var data = new Dictionary<string, object?> { { methodString, value } };
-            string? result = await SendAsync(data);
-            HandleResponse<T>(methodString, result);
-        }
-
-        protected async Task<U?> Set<T, U>(SetMethods method, T value)
-        {
-            var methodString = method.ToString();
-            var data = new Dictionary<string, object?> { { methodString, value } };
-            string? result = await SendAsync(data);
-            return HandleResponse<U>(methodString, result);
-        }
-
+        /// <summary>
+        /// Sends method <paramref name="method"/> with a parameter of 
+        /// type <typeparamref name="T"/>.
+        /// Does not return a value.
+        /// </summary>
+        /// <typeparam name="T">Type of the parameter.</typeparam>
+        /// <param name="method"><see cref="Methods"/>cto send.</param>
+        /// <param name="value">Parameter value.</param>
+        /// <returns></returns>
+        protected async Task Send<T>(Enum method, T value) => HandleResponse<T>
+        (
+            method.ToString(),
+            await SendAsync(
+                new Dictionary<string, object?>
+                {
+                    { method.ToString(), value }
+                })
+        );
+       
         /// <summary>
         /// Read the CamillaDSP version. 
         /// </summary>
         /// <returns>Returns the version as a string, like 1.2.3.</returns>
-        public async Task<string?> GetVersionAsync() => await Get<string>(GetMethods.GetVersion);
+        public async Task<string?> GetVersionAsync() => await Send<string>(Methods.GetVersion);
 
         /// <summary>
         /// Get the update interval in ms for capture rate and signal range. 
@@ -127,81 +157,81 @@ namespace CamillaDsp.Client
         /// Return a list containing two lists of strings (for playback and capture), 
         /// like [['File', 'Stdout', 'Alsa'], ['File', 'Stdin', 'Alsa']].
         /// </returns>
-        public async Task<int?> GetUpdateIntervalAsync() => await Get<int>(GetMethods.GetUpdateInterval);
+        public async Task<int?> GetUpdateIntervalAsync() => await Send<int>(Methods.GetUpdateInterval);
 
         /// <summary>
         /// Set the update interval in ms for capture rate and signal range.
         /// </summary>
         /// <param name="interval">Update interval in ms.</param>
         /// <returns></returns>
-        public async Task SetUpdateIntervalAsync(int interval) => await Set(SetMethods.SetUpdateInterval, interval);
+        public async Task SetUpdateIntervalAsync(int interval) => await Send(Methods.SetUpdateInterval, interval);
 
         /// <summary>
         /// Get the current state of the processing as a <see cref="State"/>.
         /// </summary>
         /// <returns><see cref="State"/></returns>
-        public async Task<State?> GetState() => await Get<State>(GetMethods.GetState);
+        public async Task<State?> GetState() => await Send<State>(Methods.GetState);
 
         /// <summary>
         /// Get the last reason why CamillaDSP stopped the processing.
         /// </summary>
         /// <returns><see cref="StopReason"/></returns>
-        public async Task<StopReason?> GetStopReason() => await Get<StopReason>(GetMethods.GetStopReason);
+        public async Task<StopReason?> GetStopReason() => await Send<StopReason>(Methods.GetStopReason);
 
         /// <summary>
         /// Get the measured sample rate of the capture device. 
         /// </summary>
         /// <returns>Sample rate</returns>
-        public async Task<int?> GetCaptureRate() => await Get<int>(GetMethods.GetCaptureRate);
+        public async Task<int?> GetCaptureRate() => await Send<int>(Methods.GetCaptureRate);
 
         /// <summary>
         /// Get the range of values in the last chunk. A value of 2.0 means full level (signal swings from -1.0 to +1.0) 
         /// </summary>
         /// <returns></returns>
-        public async Task<float?> GetSignalRange() => await Get<float>(GetMethods.GetSignalRange);
+        public async Task<float?> GetSignalRange() => await Send<float>(Methods.GetSignalRange);
 
         /// <summary>
         /// Get the adjustment factor applied to the asynchronous resampler. 
         /// </summary>
         /// <returns></returns>
-        public async Task<float?> GetRateAdjust() => await Get<float>(GetMethods.GetRateAdjust);
+        public async Task<float?> GetRateAdjust() => await Send<float>(Methods.GetRateAdjust);
 
         /// <summary>
         /// Get the current buffer level of the playback device when rate adjust is enabled, 
         /// returns zero otherwise. 
         /// </summary>
         /// <returns></returns>
-        public async Task<int?> GetBufferLevel() => await Get<int>(GetMethods.GetBufferLevel);
+        public async Task<int?> GetBufferLevel() => await Send<int>(Methods.GetBufferLevel);
 
         /// <summary>
         /// Get the number of clipped samples since the config was loaded. 
         /// </summary>
         /// <returns></returns>
-        public async Task<int?> GetClippedSamples() => await Get<int>(GetMethods.GetClippedSamples);
+        public async Task<int?> GetClippedSamples() => await Send<int>(Methods.GetClippedSamples);
 
         /// <summary>
         /// Reset the clipped samples counter to zero.
         /// </summary>
         /// <returns></returns>
-        public async Task ResetClippedSamples() => await Get<object>(GetMethods.ResetClippedSamples);
+        public async Task ResetClippedSamples() => await Send<object>(Methods.ResetClippedSamples);
 
         /// <summary>
         /// Get the current pipeline processing capacity utilization in percent.
         /// </summary>
         /// <returns></returns>
-        public async Task<float?> GetProcessingLoad() => await Get<float>(GetMethods.GetProcessingLoad);
+        public async Task<float?> GetProcessingLoad() => await Send<float>(Methods.GetProcessingLoad);
 
         /// <summary>
         /// Get the current state file path, returns null if no state file is used.
         /// </summary>
         /// <returns></returns>
-        public async Task<string?> GetStateFilePath() => await Get<string>(GetMethods.GetStateFilePath);
+        public async Task<string?> GetStateFilePath() => await Send<string>(Methods.GetStateFilePath);
 
         /// <summary>
         /// Check if all changes have been saved to the state file.
         /// </summary>
         /// <returns></returns>
-        public async Task<bool?> GetStateFileUpdated() => await Get<bool>(GetMethods.GetStateFileUpdated);
+        public async Task<bool?> GetStateFileUpdated() => await Send<bool>(Methods.GetStateFileUpdated);
 
         /// <summary>
         /// Read which playback and capture device types are supported. 
@@ -210,31 +240,31 @@ namespace CamillaDsp.Client
         /// Return a list containing two lists of strings (for playback and capture), 
         /// like [['File', 'Stdout', 'Alsa'], ['File', 'Stdin', 'Alsa']].
         /// </returns>
-        public async Task<string[][]?> GetSupportedDeviceTypes() => await Get<string[][]>(GetMethods.GetSupportedDeviceTypes);
+        public async Task<string[][]?> GetSupportedDeviceTypes() => await Send<string[][]>(Methods.GetSupportedDeviceTypes);
 
         /// <summary>
         /// Get the peak value in the last chunk on the capture side.
         /// </summary>
         /// <returns></returns>
-        public async Task<float[]?> GetCaptureSignalPeak() => await Get<float[]>(GetMethods.GetCaptureSignalPeak);
+        public async Task<float[]?> GetCaptureSignalPeak() => await Send<float[]>(Methods.GetCaptureSignalPeak);
 
         /// <summary>
         /// Get the RMS value in the last chunk on the capture side.
         /// </summary>
         /// <returns></returns>
-        public async Task<float[]?> GetCaptureSignalRms() => await Get<float[]>(GetMethods.GetCaptureSignalRms);
+        public async Task<float[]?> GetCaptureSignalRms() => await Send<float[]>(Methods.GetCaptureSignalRms);
 
         /// <summary>
         /// Get the peak value in the last chunk on the playback side.
         /// </summary>
         /// <returns></returns>
-        public async Task<float[]?> GetPlaybackSignalPeak() => await Get<float[]>(GetMethods.GetPlaybackSignalPeak);
+        public async Task<float[]?> GetPlaybackSignalPeak() => await Send<float[]>(Methods.GetPlaybackSignalPeak);
 
         /// <summary>
         /// Get the RMS value in the last chunk on the playback side.
         /// </summary>
         /// <returns></returns>
-        public async Task<float[]?> GetPlaybackSignalRms() => await Get<float[]>(GetMethods.GetPlaybackSignalRms);
+        public async Task<float[]?> GetPlaybackSignalRms() => await Send<float[]>(Methods.GetPlaybackSignalRms);
 
         /// <summary>
         /// Get the peak value measured during a specified time interval. 
@@ -243,7 +273,7 @@ namespace CamillaDsp.Client
         /// <param name="seconds"></param>
         /// <returns></returns>
         public async Task<float[]?> GetCaptureSignalPeakSince(float seconds) => 
-            await Get<float, float[]>(GetMethods.GetCaptureSignalPeakSince, seconds);
+            await Send<float, float[]>(Methods.GetCaptureSignalPeakSince, seconds);
 
         /// <summary>
         /// Get the RMS value measured during a specified time interval. 
@@ -252,7 +282,7 @@ namespace CamillaDsp.Client
         /// <param name="seconds"></param>
         /// <returns></returns>
         public async Task<float[]?> GetCaptureSignalRmsSince(float seconds) => 
-            await Get<float, float[]>(GetMethods.GetCaptureSignalRmsSince, seconds);
+            await Send<float, float[]>(Methods.GetCaptureSignalRmsSince, seconds);
 
         /// <summary>
         /// Get the peak value measured during a specified time interval. 
@@ -261,7 +291,7 @@ namespace CamillaDsp.Client
         /// <param name="seconds"></param>
         /// <returns></returns>
         public async Task<float[]?> GetPlaybackSignalPeakSince(float seconds) =>
-            await Get<float, float[]>(GetMethods.GetPlaybackSignalPeakSince, seconds);
+            await Send<float, float[]>(Methods.GetPlaybackSignalPeakSince, seconds);
 
         /// <summary>
         /// Get RMS value measured during a specified time interval. 
@@ -270,7 +300,7 @@ namespace CamillaDsp.Client
         /// <param name="seconds"></param>
         /// <returns></returns>
         public async Task<float[]?> GetPlaybackSignalRmsSince(float seconds) => 
-            await Get<float, float[]>(GetMethods.GetPlaybackSignalRmsSince, seconds);
+            await Send<float, float[]>(Methods.GetPlaybackSignalRmsSince, seconds);
 
         /// <summary>
         /// Get the peak value measured since the last call to the same command from the same client. 
@@ -280,7 +310,7 @@ namespace CamillaDsp.Client
         /// </summary>
         /// <returns></returns>
         public async Task<float[]?> GetCaptureSignalPeakSinceLast() => 
-            await Get<float[]>(GetMethods.GetCaptureSignalPeakSinceLast);
+            await Send<float[]>(Methods.GetCaptureSignalPeakSinceLast);
 
         /// <summary>
         /// Get the RMS value measured since the last call to the same command from the same client. 
@@ -290,7 +320,7 @@ namespace CamillaDsp.Client
         /// </summary>
         /// <returns></returns>
         public async Task<float[]?> GetCaptureSignalRmsSinceLast() => 
-            await Get<float[]>(GetMethods.GetCaptureSignalRmsSinceLast);
+            await Send<float[]>(Methods.GetCaptureSignalRmsSinceLast);
 
         /// <summary>
         /// Get the peak value measured since the last call to the same command from the same client. 
@@ -300,7 +330,7 @@ namespace CamillaDsp.Client
         /// </summary>
         /// <returns></returns>
         public async Task<float[]?> GetPlaybackSignalPeakSinceLast() => 
-            await Get<float[]>(GetMethods.GetPlaybackSignalPeakSinceLast);
+            await Send<float[]>(Methods.GetPlaybackSignalPeakSinceLast);
 
         /// <summary>
         /// Get the RMS value measured since the last call to the same command from the same client. 
@@ -310,7 +340,7 @@ namespace CamillaDsp.Client
         /// </summary>
         /// <returns></returns>
         public async Task<float[]?> GetPlaybackSignalRmsSinceLast() => 
-            await Get<float[]>(GetMethods.GetPlaybackSignalRmsSinceLast);
+            await Send<float[]>(Methods.GetPlaybackSignalRmsSinceLast);
 
         /// <summary>
         /// Combined commands for reading several levels with a single request. 
@@ -319,7 +349,7 @@ namespace CamillaDsp.Client
         /// </summary>
         /// <returns></returns>
         public async Task<Signals?> GetSignalLevels() => 
-            await Get<Signals>(GetMethods.GetSignalLevels);
+            await Send<Signals>(Methods.GetSignalLevels);
 
         /// <summary>
         /// Combined commands for reading several levels with a single request. 
@@ -328,7 +358,7 @@ namespace CamillaDsp.Client
         /// </summary>
         /// <returns></returns>
         public async Task<Signals?> GetSignalLevelsSince(float seconds) => 
-            await Get<float, Signals>(GetMethods.GetSignalLevelsSince, seconds);
+            await Send<float, Signals>(Methods.GetSignalLevelsSince, seconds);
 
         /// <summary>
         /// Combined commands for reading several levels with a single request. 
@@ -337,28 +367,28 @@ namespace CamillaDsp.Client
         /// </summary>
         /// <returns></returns>
         public async Task<Signals?> GetSignalLevelsSinceLast() => 
-            await Get<Signals>(GetMethods.GetSignalLevelsSinceLast);
+            await Send<Signals>(Methods.GetSignalLevelsSinceLast);
 
         /// <summary>
         /// Get the peak since start.
         /// </summary>
         /// <returns></returns>
         public async Task<SignalPeaks?> GetSignalPeaksSinceStart() => 
-            await Get<SignalPeaks>(GetMethods.GetSignalPeaksSinceStart);
+            await Send<SignalPeaks>(Methods.GetSignalPeaksSinceStart);
 
         /// <summary>
         /// Reset the peak values. Note that this resets the peak for all clients.
         /// </summary>
         /// <returns></returns>
         public async Task ResetSignalPeaksSinceStart() => 
-            await Get<object>(GetMethods.ResetSignalPeaksSinceStart);
+            await Send<object>(Methods.ResetSignalPeaksSinceStart);
 
         /// <summary>
         /// Get the current volume setting in dB.
         /// </summary>
         /// <returns></returns>
         public async Task<float?> GetVolume() => 
-            await Get<float>(GetMethods.GetVolume);
+            await Send<float>(Methods.GetVolume);
 
         /// <summary>
         /// Set the volume control to the given value in dB. Clamped to the range -150 to +50 dB.
@@ -366,7 +396,7 @@ namespace CamillaDsp.Client
         /// <param name="volumeDb"></param>
         /// <returns></returns>
         public async Task SetVolume(float volumeDb) => 
-            await Set(SetMethods.SetVolume, volumeDb);
+            await Send(Methods.SetVolume, volumeDb);
 
         /// <summary>
         /// Change the volume setting by the given number of dB, positive or negative. 
@@ -376,26 +406,26 @@ namespace CamillaDsp.Client
         /// <param name="deltaDb"></param>
         /// <returns></returns>
         public async Task AdjustVolume(float[] deltaDb) => 
-            await Set(SetMethods.AdjustVolume, deltaDb);
+            await Send(Methods.AdjustVolume, deltaDb);
 
         /// <summary>
         /// Get the current mute setting.
         /// </summary>
         /// <returns></returns>
-        public async Task<bool?> GetMute() => await Get<bool>(GetMethods.GetMute);
+        public async Task<bool?> GetMute() => await Send<bool>(Methods.GetMute);
 
         /// <summary>
         /// Set muting to the given value.
         /// </summary>
         /// <param name="mute"></param>
         /// <returns></returns>
-        public async Task SetMute(bool mute) => await Set(SetMethods.SetMute, mute);
+        public async Task SetMute(bool mute) => await Send(Methods.SetMute, mute);
 
         /// <summary>
         /// Toggle muting.
         /// </summary>
         /// <returns></returns>
-        public async Task<bool> ToggleMute() => await Get<bool>(GetMethods.ToggleMute);
+        public async Task<bool> ToggleMute() => await Send<bool>(Methods.ToggleMute);
 
         /// <summary>
         /// Get the current volume setting in dB.
@@ -403,7 +433,7 @@ namespace CamillaDsp.Client
         /// <param name="faderIndex"></param>
         /// <returns></returns>
         public async Task<float[]?> GetFaderVolume(int faderIndex) => 
-            await Get<int, float[]>(GetMethods.GetFaderVolume, faderIndex);
+            await Send<int, float[]>(Methods.GetFaderVolume, faderIndex);
 
         /// <summary>
         /// Get a list of available capture devices.
@@ -411,7 +441,7 @@ namespace CamillaDsp.Client
         /// <param name="backend"></param>
         /// <returns></returns>
         public async Task<string[][]?> GetAvailableCaptureDevices(Backend backend) => 
-            await Get<Backend, string[][]>(GetMethods.GetAvailableCaptureDevices, backend);
+            await Send<Backend, string[][]>(Methods.GetAvailableCaptureDevices, backend);
 
         /// <summary>
         /// Get a list of available playback devices.
@@ -419,7 +449,7 @@ namespace CamillaDsp.Client
         /// <param name="backend"></param>
         /// <returns></returns>
         public async Task<string[][]?> GetAvailablePlaybackDevices(Backend backend) => 
-            await Get<Backend, string[][]>(GetMethods.GetAvailablePlaybackDevices, backend);
+            await Send<Backend, string[][]>(Methods.GetAvailablePlaybackDevices, backend);
 
         /// <summary>
         /// Set the volume control to the given value in dB. Clamped to the range -150 to +50 dB.
@@ -428,7 +458,7 @@ namespace CamillaDsp.Client
         /// <param name="volumeDb"></param>
         /// <returns></returns>
         public async Task SetFaderVolume(float faderIndex, float volumeDb) => 
-            await Set(SetMethods.SetFaderVolume, new float[] {faderIndex, volumeDb});
+            await Send(Methods.SetFaderVolume, new float[] {faderIndex, volumeDb});
 
         /// <summary>
         /// Special command for setting the volume when a Loudness filter is being combined with an external volume control 
@@ -439,7 +469,7 @@ namespace CamillaDsp.Client
         /// <param name="volumeDb"></param>
         /// <returns></returns>
         public async Task SetFaderExternalVolume(float faderIndex, float volumeDb) => 
-            await Set(SetMethods.SetFaderExternalVolume, new float[] {faderIndex, volumeDb });
+            await Send(Methods.SetFaderExternalVolume, new float[] {faderIndex, volumeDb });
 
         /// <summary>
         /// Change the volume setting by the given number of dB, positive or negative. 
@@ -450,7 +480,7 @@ namespace CamillaDsp.Client
         /// <param name="deltaDb"></param>
         /// <returns></returns>
         public async Task AdjustFaderVolume(int faderIndex, float deltaDb) => 
-            await Set(SetMethods.AdjustFaderVolume, new object[] { faderIndex, deltaDb });
+            await Send(Methods.AdjustFaderVolume, new object[] { faderIndex, deltaDb });
 
         /// <summary>
         /// Change the volume setting by the given number of dB, positive or negative. 
@@ -462,7 +492,7 @@ namespace CamillaDsp.Client
         /// <returns></returns>
         public async Task AdjustFaderVolume(int faderIndex, float[] deltaDb)
         {
-            await Set(SetMethods.AdjustFaderVolume, new object[] { faderIndex, deltaDb });
+            await Send(Methods.AdjustFaderVolume, new object[] { faderIndex, deltaDb });
         }
 
         /// <summary>
@@ -471,7 +501,7 @@ namespace CamillaDsp.Client
         /// <param name="faderIndex"></param>
         /// <returns></returns>
         public async Task<bool?> GetFaderMute(int faderIndex) => 
-            await Get<int, bool>(GetMethods.GetFaderMute, faderIndex);
+            await Send<int, bool>(Methods.GetFaderMute, faderIndex);
 
         /// <summary>
         /// Set muting to the given value.
@@ -480,7 +510,7 @@ namespace CamillaDsp.Client
         /// <param name="mute"></param>
         /// <returns></returns>
         public async Task SetFaderMute(int faderIndex, bool mute) => 
-            await Set(SetMethods.SetFaderMute, new object[] { faderIndex, mute });
+            await Send(Methods.SetFaderMute, new object[] { faderIndex, mute });
 
         /// <summary>
         /// Toggle muting.
@@ -488,25 +518,25 @@ namespace CamillaDsp.Client
         /// <param name="faderIndex"></param>
         /// <returns></returns>
         public async Task<bool?> ToggleFaderMute(int faderIndex) => 
-            (await Get<int, object[]>(GetMethods.ToggleFaderMute, faderIndex))?[1] as bool?;
+            (await Send<int, object[]>(Methods.ToggleFaderMute, faderIndex))?[1] as bool?;
 
         /// <summary>
         /// Read all faders.
         /// </summary>
         /// <returns></returns>
-        public async Task<Fader[]?> GetFaders() => await Get<Fader[]>(GetMethods.GetFaders);
+        public async Task<Fader[]?> GetFaders() => await Send<Fader[]>(Methods.GetFaders);
 
         /// <summary>
         /// Read the current configuration as yaml. 
         /// </summary>
         /// <returns></returns>
-        public async Task<string?> GetConfig() => await Get<string>(GetMethods.GetConfig);
+        public async Task<string?> GetConfig() => await Send<string>(Methods.GetConfig);
 
         /// <summary>
         /// Read the current configuration as json.
         /// </summary>
         /// <returns></returns>
-        public async Task<string?> GetConfigJson() => await Get<string>(GetMethods.GetConfigJson);
+        public async Task<string?> GetConfigJson() => await Send<string>(Methods.GetConfigJson);
 
         /// <summary>
         /// Read the current configuration as json.
@@ -526,58 +556,58 @@ namespace CamillaDsp.Client
         /// Read the title from the current configuration. 
         /// </summary>
         /// <returns></returns>
-        public async Task<string?> GetConfigTitle() => await Get<string>(GetMethods.GetConfigTitle);
+        public async Task<string?> GetConfigTitle() => await Send<string>(Methods.GetConfigTitle);
 
         /// <summary>
         /// Read the description from the current configuration. 
         /// </summary>
         /// <returns></returns>
-        public async Task<string?> GetConfigDescription() => await Get<string>(GetMethods.GetConfigDescription);
+        public async Task<string?> GetConfigDescription() => await Send<string>(Methods.GetConfigDescription);
 
         /// <summary>
         /// Get name and path of current config file. 
         /// </summary>
         /// <returns></returns>
-        public async Task<string?> GetConfigFilePath() => await Get<string>(GetMethods.GetConfigFilePath);
+        public async Task<string?> GetConfigFilePath() => await Send<string>(Methods.GetConfigFilePath);
 
         /// <summary>
         /// Read the previous configuration as yaml.
         /// </summary>
         /// <returns></returns>
-        public async Task<string?> GetPreviousConfig() => await Get<string>(GetMethods.GetPreviousConfig);
+        public async Task<string?> GetPreviousConfig() => await Send<string>(Methods.GetPreviousConfig);
 
         /// <summary>
         /// Reload current config file (same as SIGHUP).
         /// </summary>
         /// <returns></returns>
-        public async Task Reload() => await Get<object>(GetMethods.Reload);
+        public async Task Reload() => await Send<object>(Methods.Reload);
 
         /// <summary>
         /// Stop processing and wait for a new config to be uploaded either with 
         /// <see cref="SetConfig"></see> or with <see cref="SetConfigFilePath"/>+<see cref="Reload"/>.
         /// </summary>
         /// <returns></returns>
-        public async Task Stop() => await Get<object>(GetMethods.Stop);
+        public async Task Stop() => await Send<object>(Methods.Stop);
 
         /// <summary>
         /// Stop processing and exit.
         /// </summary>
         /// <returns></returns>
-        public async Task Exit() => await Get<object>(GetMethods.Exit);
+        public async Task Exit() => await Send<object>(Methods.Exit);
 
         /// <summary>
         /// Provide a new config as a yaml string. Applied directly.
         /// </summary>
         /// <param name="config"></param>
         /// <returns></returns>
-        public async Task SetConfig(string config) => await Set(SetMethods.SetConfig, config);
+        public async Task SetConfig(string config) => await Send(Methods.SetConfig, config);
 
         /// <summary>
         ///  Provide a new config as a JSON string. Applied directly.
         /// </summary>
         /// <param name="config"></param>
         /// <returns></returns>
-        public async Task SetConfigJson(string config) => await Set(SetMethods.SetConfigJson, config);
+        public async Task SetConfigJson(string config) => await Send(Methods.SetConfigJson, config);
 
         /// <summary>
         ///  Provide a new config as a JSON string. Applied directly.
@@ -587,7 +617,7 @@ namespace CamillaDsp.Client
         public async Task SetConfigObject(DspConfig config)
         {
             var json = JsonSerializer.Serialize(config, JsonSerializerOptions);
-            await Set(SetMethods.SetConfigJson, json);
+            await Send(Methods.SetConfigJson, json);
         }
         
         /// <summary>
@@ -595,27 +625,27 @@ namespace CamillaDsp.Client
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
-        public async Task SetConfigFilePath(string path) => await Set(SetMethods.SetConfigFilePath, path);
+        public async Task SetConfigFilePath(string path) => await Send(Methods.SetConfigFilePath, path);
 
         /// <summary>
         /// Read the provided config (as a yaml string) and check it for yaml syntax errors. 
         /// </summary>
         /// <param name="config"></param>
         /// <returns></returns>
-        public async Task ReadConfig(string config) => await Get<string, object>(GetMethods.ReadConfig, config);
+        public async Task ReadConfig(string config) => await Send<string, object>(Methods.ReadConfig, config);
 
         /// <summary>
         /// Same as ReadConfig but reads the config from the file at the given path.
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
-        public async Task ReadConfigFile(string path) => await Get<string, object>(GetMethods.ReadConfigFile, path);
+        public async Task ReadConfigFile(string path) => await Send<string, object>(Methods.ReadConfigFile, path);
 
         /// <summary>
         /// Same as ReadConfig but performs more extensive checks to ensure the configuration can be applied.
         /// </summary>
         /// <param name="config"></param>
         /// <returns></returns>
-        public async Task ValidateConfig(string config) => await Get<string, object>(GetMethods.ValidateConfig, config);
+        public async Task ValidateConfig(string config) => await Send<string, object>(Methods.ValidateConfig, config);
     }
 }

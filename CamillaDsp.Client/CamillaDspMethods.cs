@@ -1,7 +1,10 @@
-﻿namespace CamillaDsp.Client
+﻿using System;
+
+namespace CamillaDsp.Client
 {
-    public enum GetMethods
+    public enum Methods
     {
+        // Get methods
         GetVersion,
         GetUpdateInterval,
         GetState,
@@ -53,11 +56,9 @@
         Exit,
         ReadConfig,
         ReadConfigFile,
-        ValidateConfig
-    }
-
-    public enum SetMethods
-    {
+        ValidateConfig,
+        
+        // Set methods
         SetUpdateInterval,
         SetVolume,
         AdjustVolume,

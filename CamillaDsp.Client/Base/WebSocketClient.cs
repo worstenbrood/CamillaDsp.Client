@@ -67,7 +67,8 @@ namespace CamillaDsp.Client.Base
                 switch(result.MessageType)
                 {
                     case WebSocketMessageType.Close:
-                        await _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", CancellationToken);
+                        await _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, 
+                            C.WebSockets.Closing, CancellationToken);
                         break;
                     case WebSocketMessageType.Text:
                         sb.Append(Encoding.UTF8.GetString(buffer, 0, result.Count));
