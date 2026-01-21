@@ -14,13 +14,6 @@ namespace CamillaDsp.Client.Base
         private readonly ClientWebSocket _webSocket = new();
         private readonly CancellationTokenSource _cancellationTokenSource = new();
         protected CancellationToken CancellationToken => _cancellationTokenSource.Token;
-        
-        protected readonly JsonSerializerOptions JsonSerializerOptions = new()
-        {
-            WriteIndented = false,
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-        };
-
         protected readonly SemaphoreSlim Semaphore = new(1, 1);
 
         public async Task<WebSocketState> Connect()
@@ -48,7 +41,7 @@ namespace CamillaDsp.Client.Base
         {
             string data = ModelTypes<T>.TypeCode switch
             {
-                TypeCode.Object => JsonSerializer.Serialize(message, JsonSerializerOptions),
+                TypeCode.Object => Serializer.Serialize(message),
                 _ => (string?)Convert.ChangeType(message, TypeCode.String)
             } ?? throw new ArgumentException("Message cannot be null", nameof(message));
             await SendStringCommandAsync(data);
@@ -93,7 +86,7 @@ namespace CamillaDsp.Client.Base
             {
                 return ModelTypes<T>.TypeCode switch
                 {
-                    TypeCode.Object => JsonSerializer.Deserialize<T>(result, JsonSerializerOptions),
+                    TypeCode.Object => Serializer.Deserialize<T>(result),
                     _ => (T)Convert.ChangeType(result, ModelTypes<T>.TypeCode),
                 };
             }

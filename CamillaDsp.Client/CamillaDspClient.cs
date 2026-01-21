@@ -549,7 +549,7 @@ namespace CamillaDsp.Client
             {
                 return null;
             }
-            return JsonSerializer.Deserialize<DspConfig>(result.Trim('\"'), JsonSerializerOptions);
+            return Serializer.Deserialize<DspConfig>(result.Trim('\"'));
         }
 
         /// <summary>
@@ -616,7 +616,7 @@ namespace CamillaDsp.Client
         /// <returns></returns>
         public async Task SetConfigObject(DspConfig config)
         {
-            var json = JsonSerializer.Serialize(config, JsonSerializerOptions);
+            var json = Serializer.Serialize(config);
             await Send(Methods.SetConfigJson, json);
         }
         

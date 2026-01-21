@@ -1,8 +1,9 @@
-﻿using System;
+﻿using CamillaDsp.Client.Models.Config;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace CamillaDsp.Client.Models.Config
+namespace CamillaDsp.Client
 {
     public class FilterFactory
     {

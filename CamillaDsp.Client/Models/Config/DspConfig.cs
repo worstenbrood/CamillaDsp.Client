@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using CamillaDsp.Client.Base;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace CamillaDsp.Client.Models.Config
@@ -37,5 +38,14 @@ namespace CamillaDsp.Client.Models.Config
         /// </summary>
         [JsonPropertyName("pipeline")]
         public Pipeline[]? Pipeline { get; set; }
+
+        /// <summary>
+        /// Return this object serialized as a JSON string.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return Serializer.Serialize(this);
+        }
     }
 }
