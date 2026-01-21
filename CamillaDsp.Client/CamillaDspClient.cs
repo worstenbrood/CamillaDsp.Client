@@ -612,8 +612,7 @@ namespace CamillaDsp.Client
         /// <returns></returns>
         public async Task SetConfigObject(DspConfig config)
         {
-            var json = Serializer.Serialize(config);
-            await Send(Methods.SetConfigJson, json);
+            await SetConfigJson(config.ToString());
         }
         
         /// <summary>
