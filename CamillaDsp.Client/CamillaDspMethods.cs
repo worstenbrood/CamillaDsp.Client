@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace CamillaDsp.Client
+﻿namespace CamillaDsp.Client
 {
     public enum Methods
     {

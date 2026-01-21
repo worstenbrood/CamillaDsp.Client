@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Text;
-using System.Text.Json;
 using System.Net.WebSockets;
 using System.Threading.Tasks;
-using System.Text.Json.Serialization;
 using System.Threading;
 
 namespace CamillaDsp.Client.Base

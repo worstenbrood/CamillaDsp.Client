@@ -1,7 +1,4 @@
-﻿using System;
-using System.Text;
-using System.Collections.Generic;
-using CamillaDsp.Client.Models.Config;
+﻿using System.Collections.Generic;
 using CamillaDsp.Client.Models.Config.Processors;
 
 namespace CamillaDsp.Client.Factories
