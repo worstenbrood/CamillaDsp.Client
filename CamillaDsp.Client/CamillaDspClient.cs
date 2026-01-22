@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text.Json;
 using System.Threading.Tasks;
-using CamillaDsp.Client.Base;
+using CamillaDsp.Client.Core;
 using CamillaDsp.Client.Models;
 using CamillaDsp.Client.Models.Config;
 

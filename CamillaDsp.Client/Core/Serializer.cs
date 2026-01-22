@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace CamillaDsp.Client.Base
+namespace CamillaDsp.Client.Core
 {
     public static class Serializer
     {

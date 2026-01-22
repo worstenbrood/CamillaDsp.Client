@@ -1,11 +1,12 @@
 ﻿using System;
-using System.Text;
-using System.Net.WebSockets;
-using System.Threading.Tasks;
-using System.Threading;
 using System.IO;
+using System.Net.Sockets;
+using System.Net.WebSockets;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace CamillaDsp.Client.Base
+namespace CamillaDsp.Client.Core
 {
     public abstract class WebSocketClient(string url) : IDisposable
     {
@@ -95,14 +96,12 @@ namespace CamillaDsp.Client.Base
             return default;
         }
 
-        public async Task<string?> SendAsync(string message)
+        private T Locked<T>(Func<T> func)
         {
-            // Lock
             Semaphore.Wait(CancellationToken);
             try
             {
-                await SendCommandAsync(message);
-                return await ReceiveStringResultAsync();
+                return func();
             }
             finally
             {
@@ -111,38 +110,28 @@ namespace CamillaDsp.Client.Base
             }
         }
 
-        public async Task<T?> SendAsync<T>(string message)
-        {
-            // Lock
-            Semaphore.Wait(CancellationToken);
-            try
+        public async Task<string?> SendAsync(string message) =>
+            await Locked(async () =>
+            {
+                await SendCommandAsync(message);
+                return await ReceiveStringResultAsync();
+            });
+
+
+        public async Task<T?> SendAsync<T>(string message) =>
+            await Locked(async () =>
             {
                 await SendCommandAsync(message);
                 return await ReceiveResultAsync<T>();
-            }
-            finally
-            {
-                // Release lock
-                Semaphore.Release();
-            }
-        }
+            });
 
-        public async Task<string?> SendAsync<T>(T message)
-        {
-            // Lock
-            Semaphore.Wait(CancellationToken);
-            try
+        public async Task<string?> SendAsync<T>(T message) =>
+            await Locked(async () =>
             {
                 await SendCommandAsync(message);
                 return await ReceiveStringResultAsync();
-            }
-            finally
-            {
-                // Release lock
-                Semaphore.Release();
-            }
-        }
-
+            });
+            
         public async Task<U?> SendAsync<T,U>(T message)
         {
             // Lock

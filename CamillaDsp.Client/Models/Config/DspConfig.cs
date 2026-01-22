@@ -1,4 +1,4 @@
-﻿using CamillaDsp.Client.Base;
+﻿using CamillaDsp.Client.Core;
 using CamillaDsp.Client.Models.Config.AudioDevices;
 using CamillaDsp.Client.Models.Config.Filters;
 using CamillaDsp.Client.Models.Config.Mixers;

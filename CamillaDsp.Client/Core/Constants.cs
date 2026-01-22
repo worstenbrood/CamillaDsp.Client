@@ -1,4 +1,4 @@
-﻿namespace CamillaDsp.Client.Base
+﻿namespace CamillaDsp.Client.Core
 {
     public static class C
     {
