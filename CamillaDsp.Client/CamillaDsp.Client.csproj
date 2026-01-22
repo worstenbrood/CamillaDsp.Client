@@ -16,8 +16,8 @@
 	<PropertyGroup>
 		<Title>CamillaDsp.Client</Title>
 		<PackageId>CamillaDsp.Client</PackageId>
-		<AssemblyVersion>1.0.8.0</AssemblyVersion>
-		<VersionPrefix>1.0.8</VersionPrefix>
+		<AssemblyVersion>1.0.9.0</AssemblyVersion>
+		<VersionPrefix>1.0.9</VersionPrefix>
 		<VersionSuffix></VersionSuffix>
 		<AssemblyTitle>CamillaDsp.Client</AssemblyTitle>
 		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
