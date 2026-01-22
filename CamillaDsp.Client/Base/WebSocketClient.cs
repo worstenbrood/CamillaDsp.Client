@@ -3,23 +3,24 @@ using System.Text;
 using System.Net.WebSockets;
 using System.Threading.Tasks;
 using System.Threading;
+using System.IO;
 
 namespace CamillaDsp.Client.Base
 {
     public abstract class WebSocketClient(string url) : IDisposable
     {
         private readonly Uri _uri = new(url);
-        private readonly ClientWebSocket _webSocket = new();
         private readonly CancellationTokenSource _cancellationTokenSource = new();
         protected CancellationToken CancellationToken => _cancellationTokenSource.Token;
         protected readonly SemaphoreSlim Semaphore = new(1, 1);
+        protected readonly ClientWebSocket WebSocket = new();
 
         public async Task<WebSocketState> Connect()
         {
-            if (_webSocket.State != WebSocketState.Open)
+            if (WebSocket.State != WebSocketState.Open)
             {
-                WebSocketState previousState = _webSocket.State;
-                await _webSocket.ConnectAsync(_uri, CancellationToken);
+                WebSocketState previousState = WebSocket.State;
+                await WebSocket.ConnectAsync(_uri, CancellationToken);
                 return previousState;
             }
 
@@ -32,7 +33,7 @@ namespace CamillaDsp.Client.Base
             var sendSegment = new ArraySegment<byte>(sendBuffer);
             
             await Connect();
-            await _webSocket.SendAsync(sendSegment, WebSocketMessageType.Text, true, CancellationToken);
+            await WebSocket.SendAsync(sendSegment, WebSocketMessageType.Text, true, CancellationToken);
         }
 
         protected async Task SendCommandAsync<T>(T message)
@@ -54,27 +55,29 @@ namespace CamillaDsp.Client.Base
 
             do
             {
-                result = await _webSocket.ReceiveAsync(segment, CancellationToken);
-                switch(result.MessageType)
+                result = await WebSocket.ReceiveAsync(segment, CancellationToken);
+                switch (result.MessageType)
                 {
                     case WebSocketMessageType.Close:
-                        await _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, 
+                        await WebSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, 
                             C.WebSockets.Closing, CancellationToken);
-                        break;
+                        throw new IOException($"Connection closed. {result.CloseStatus} ({result.CloseStatusDescription})");
+
                     case WebSocketMessageType.Text:
                         sb.Append(Encoding.UTF8.GetString(buffer, 0, result.Count));
                         break;
+
+                    case WebSocketMessageType.Binary:
+                        throw new NotImplementedException("Received binary data. Expected text.");
                 }
             }
             while (!result.EndOfMessage && result.MessageType != WebSocketMessageType.Close);
 
-            // Return string
-            if (result.MessageType == WebSocketMessageType.Text)
+            return result.MessageType switch
             {
-                return sb.ToString();
-            }
-
-            return null;
+                WebSocketMessageType.Text => sb.ToString(),
+                _ => throw new NotImplementedException(result.MessageType.ToString())
+            };
         }
 
         protected async Task<T?> ReceiveResultAsync<T>(int bufferSize = 4096)
@@ -91,7 +94,6 @@ namespace CamillaDsp.Client.Base
 
             return default;
         }
-
 
         public async Task<string?> SendAsync(string message)
         {
@@ -160,7 +162,7 @@ namespace CamillaDsp.Client.Base
         public void Dispose()
         {
             _cancellationTokenSource?.Cancel();
-            _webSocket?.Dispose();
+            WebSocket?.Dispose();
             GC.SuppressFinalize(this);
         }
     }
