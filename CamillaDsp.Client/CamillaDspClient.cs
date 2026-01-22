@@ -35,11 +35,11 @@ namespace CamillaDsp.Client
         /// Handles the json response
         /// </summary>
         /// <typeparam name="T">Type of method value</typeparam>
-        /// <param name="methodName">Method name.</param>
-        /// <param name="result">Response as a string.</param>
+        /// <param name="method">Method.</param>
+        /// <param name="response">Response as a string.</param>
         /// <returns></returns>
         /// <exception cref="CamillaDspException"></exception>
-        private static T? HandleResponse<T>(string methodName, string? response)
+        private static T? HandleResponse<T>(Enum method, string? response)
         {
             // Null check
             if (response == null || string.IsNullOrWhiteSpace(response))
@@ -49,6 +49,9 @@ namespace CamillaDsp.Client
 
             // Parse json
             var json = JsonDocument.Parse(response);
+
+            // Get method name
+            var methodName = method.ToString();
 
             // Check for method name property
             if (json.RootElement.TryGetProperty(methodName, out JsonElement element))
@@ -93,6 +96,22 @@ namespace CamillaDsp.Client
         }
 
         /// <summary>
+        /// Handle request without parameters
+        /// </summary>
+        /// <param name="method"></param>
+        /// <returns></returns>
+        protected async Task<string?> HandleRequest(Enum method) =>
+            await SendAsync($"\"{method}\"");
+
+        /// <summary>
+        /// Handle request with parameters
+        /// </summary>
+        /// <param name="method"></param>
+        /// <returns></returns>
+        protected async Task<string?> HandleRequest<T>(Enum method, T value) =>
+            await SendAsync(method.ToMethodObject(value));
+
+        /// <summary>
         /// Sends method <paramref name="method"/>.
         /// Returns the repsonse as a nullable of type <typeparamref name="T"/>.
         /// </summary>
@@ -101,10 +120,9 @@ namespace CamillaDsp.Client
         /// <returns>nullable of type <typeparamref name="T"/>.</returns>
         protected async Task<T?> Send<T>(Enum method) => HandleResponse<T>
         (
-            method.ToString(), 
-            await SendAsync($"\"{method}\"")
+            method, await HandleRequest(method)
         );
-        
+
         /// <summary>
         /// Sends method <paramref name="method"/> with a parameter of 
         /// type <typeparamref name="T"/>.
@@ -117,12 +135,7 @@ namespace CamillaDsp.Client
         /// <returns></returns>
         protected async Task<U?> Send<T, U>(Enum method, T value) => HandleResponse<U>
         (
-            method.ToString(), 
-            await SendAsync(
-                new Dictionary<string, object?> 
-                { 
-                    { method.ToString(), value } 
-                })
+            method, await HandleRequest(method, value)
         );
 
         /// <summary>
@@ -136,12 +149,7 @@ namespace CamillaDsp.Client
         /// <returns></returns>
         protected async Task Send<T>(Enum method, T value) => HandleResponse<T>
         (
-            method.ToString(),
-            await SendAsync(
-                new Dictionary<string, object?>
-                {
-                    { method.ToString(), value }
-                })
+            method, await HandleRequest(method, value)
         );
        
         /// <summary>

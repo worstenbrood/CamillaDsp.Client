@@ -1,4 +1,7 @@
-﻿namespace CamillaDsp.Client
+﻿using System;
+using System.Collections.Generic;
+
+namespace CamillaDsp.Client
 {
     public enum Methods
     {
@@ -68,5 +71,19 @@
         SetConfigFilePath,
         SetConfig,
         SetConfigJson
+    }
+
+    public static class MethodExtensions
+    {
+        /// <summary>
+        /// Convert <paramref name="method"/> and <paramref name="value"/> into 
+        /// a method object eg. { 'method': value }".
+        /// </summary>
+        /// <typeparam name="T">Type of <paramref name="value"/></typeparam>
+        /// <param name="method">Method <see cref="Enum"/> value.</param>
+        /// <param name="value">Parameter value.</param>
+        /// <returns></returns>
+        public static Dictionary<string, object?> ToMethodObject<T>(this Enum method, T value) =>
+            new() { { method.ToString(), value } };
     }
 }
