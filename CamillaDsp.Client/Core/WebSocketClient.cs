@@ -132,22 +132,13 @@ namespace CamillaDsp.Client.Core
                 return await ReceiveStringResultAsync();
             });
             
-        public async Task<U?> SendAsync<T,U>(T message)
-        {
-            // Lock
-            Semaphore.Wait(CancellationToken);
-            try
+        public async Task<U?> SendAsync<T,U>(T message) =>
+            await Locked(async () =>
             {
                 await SendCommandAsync(message);
                 return await ReceiveResultAsync<U>();
-            }
-            finally
-            {
-                // Release lock
-                Semaphore.Release();
-            }
-        }
-
+            });
+        
         public void Dispose()
         {
             _cancellationTokenSource?.Cancel();
