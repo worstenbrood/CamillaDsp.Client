@@ -20,6 +20,5 @@ namespace CamillaDsp.Client.Models.Config.AudioDevices
 
         [JsonPropertyName("level")]
         public float? Level { get; set; }
-
     }
 }
