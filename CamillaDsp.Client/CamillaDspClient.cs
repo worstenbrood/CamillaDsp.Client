@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using CamillaDsp.Client.Core;
 using CamillaDsp.Client.Models;
 using CamillaDsp.Client.Models.Config;
+using CamillaDsp.Client.Models.Config.AudioDevices;
 
 namespace CamillaDsp.Client
 {
@@ -242,7 +243,7 @@ namespace CamillaDsp.Client
         /// Return a list containing two lists of strings (for playback and capture), 
         /// like [['File', 'Stdout', 'Alsa'], ['File', 'Stdin', 'Alsa']].
         /// </returns>
-        public async Task<string[][]?> GetSupportedDeviceTypes() => await Send<string[][]>(Methods.GetSupportedDeviceTypes);
+        public async Task<DeviceTypes[][]?> GetSupportedDeviceTypes() => await Send<DeviceTypes[][]>(Methods.GetSupportedDeviceTypes);
 
         /// <summary>
         /// Get the peak value in the last chunk on the capture side.
