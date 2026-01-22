@@ -15,6 +15,8 @@ public class Program
         // Fetch some info
         sb.AppendLine($"camilladsp version: {await client.GetVersionAsync()}");
         sb.AppendLine($"config: {await client.GetConfig()}");
+        sb.AppendLine($"state: {await client.GetState()}");
+        sb.AppendLine($"load: {await client.GetProcessingLoad()}");
         var volume = await client.GetVolume();
         sb.AppendLine($"volume: {volume}dB");
         
