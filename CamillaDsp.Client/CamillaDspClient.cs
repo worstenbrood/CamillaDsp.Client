@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Text.Json;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 using CamillaDsp.Client.Base;
 using CamillaDsp.Client.Models;
 using CamillaDsp.Client.Models.Config;
@@ -30,6 +29,21 @@ namespace CamillaDsp.Client
             }
         }
 
+        /// <summary>
+        /// Handle request without parameters
+        /// </summary>
+        /// <param name="method"></param>
+        /// <returns></returns>
+        protected async Task<string?> HandleRequest(Enum method) =>
+            await SendAsync($"\"{method}\"");
+
+        /// <summary>
+        /// Handle request with parameters
+        /// </summary>
+        /// <param name="method"></param>
+        /// <returns></returns>
+        protected async Task<string?> HandleRequest<T>(Enum method, T value) =>
+            await SendAsync(method.ToMethodObject(value));
 
         /// <summary>
         /// Handles the json response
@@ -94,22 +108,6 @@ namespace CamillaDsp.Client
 
             return default;
         }
-
-        /// <summary>
-        /// Handle request without parameters
-        /// </summary>
-        /// <param name="method"></param>
-        /// <returns></returns>
-        protected async Task<string?> HandleRequest(Enum method) =>
-            await SendAsync($"\"{method}\"");
-
-        /// <summary>
-        /// Handle request with parameters
-        /// </summary>
-        /// <param name="method"></param>
-        /// <returns></returns>
-        protected async Task<string?> HandleRequest<T>(Enum method, T value) =>
-            await SendAsync(method.ToMethodObject(value));
 
         /// <summary>
         /// Sends method <paramref name="method"/>.
