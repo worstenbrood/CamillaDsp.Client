@@ -271,7 +271,8 @@ namespace CamillaDsp.Client
 
         /// <summary>
         /// Get the peak value measured during a specified time interval. 
-        /// Takes a time in seconds (n.nn), and returns the values measured during the last n.nn seconds.
+        /// Takes a time in seconds (n.nn), and returns the values measured during 
+        /// the last n.nn <paramref name="seconds"/>.
         /// </summary>
         /// <param name="seconds"></param>
         /// <returns></returns>
@@ -280,7 +281,8 @@ namespace CamillaDsp.Client
 
         /// <summary>
         /// Get the RMS value measured during a specified time interval. 
-        /// Takes a time in seconds (n.nn), and returns the values measured during the last n.nn seconds.
+        /// Takes a time in seconds (n.nn), and returns the values measured during 
+        /// the last n.nn <paramref name="seconds"/>.
         /// </summary>
         /// <param name="seconds"></param>
         /// <returns></returns>
@@ -289,7 +291,8 @@ namespace CamillaDsp.Client
 
         /// <summary>
         /// Get the peak value measured during a specified time interval. 
-        /// Takes a time in seconds (n.nn), and returns the values measured during the last n.nn seconds.
+        /// Takes a time in seconds (n.nn), and returns the values measured during 
+        /// the last n.nn <paramref name="seconds"/>.
         /// </summary>
         /// <param name="seconds"></param>
         /// <returns></returns>
@@ -298,7 +301,8 @@ namespace CamillaDsp.Client
 
         /// <summary>
         /// Get RMS value measured during a specified time interval. 
-        /// Takes a time in seconds (n.nn), and returns the values measured during the last n.nn seconds.
+        /// Takes a time in seconds (n.nn), and returns the values measured during 
+        /// the last n.nn <paramref name="seconds"/>.
         /// </summary>
         /// <param name="seconds"></param>
         /// <returns></returns>
@@ -307,9 +311,9 @@ namespace CamillaDsp.Client
 
         /// <summary>
         /// Get the peak value measured since the last call to the same command from the same client. 
-        /// The first time a client calls this command it returns the values measured since the client connected. 
-        /// If the command is repeated very quickly, it may happen that there is no new data. 
-        /// The response is then an empty vector.
+        /// The first time a client calls this command it returns the values measured since 
+        /// the client connected. If the command is repeated very quickly, it may happen that 
+        /// there is no new data. The response is then an empty vector.
         /// </summary>
         /// <returns></returns>
         public async Task<float[]?> GetCaptureSignalPeakSinceLast() => 
@@ -317,9 +321,9 @@ namespace CamillaDsp.Client
 
         /// <summary>
         /// Get the RMS value measured since the last call to the same command from the same client. 
-        /// The first time a client calls this command it returns the values measured since the client connected. 
-        /// If the command is repeated very quickly, it may happen that there is no new data. 
-        /// The response is then an empty vector.
+        /// The first time a client calls this command it returns the values measured since 
+        /// the client connected. If the command is repeated very quickly, it may happen that 
+        /// there is no new data. The response is then an empty vector.
         /// </summary>
         /// <returns></returns>
         public async Task<float[]?> GetCaptureSignalRmsSinceLast() => 
@@ -327,9 +331,9 @@ namespace CamillaDsp.Client
 
         /// <summary>
         /// Get the peak value measured since the last call to the same command from the same client. 
-        /// The first time a client calls this command it returns the values measured since the client connected. 
-        /// If the command is repeated very quickly, it may happen that there is no new data. 
-        /// The response is then an empty vector.
+        /// The first time a client calls this command it returns the values measured since 
+        /// the client connected. If the command is repeated very quickly, it may happen that 
+        /// there is no new data. The response is then an empty vector.
         /// </summary>
         /// <returns></returns>
         public async Task<float[]?> GetPlaybackSignalPeakSinceLast() => 
@@ -337,9 +341,9 @@ namespace CamillaDsp.Client
 
         /// <summary>
         /// Get the RMS value measured since the last call to the same command from the same client. 
-        /// The first time a client calls this command it returns the values measured since the client connected. 
-        /// If the command is repeated very quickly, it may happen that there is no new data. 
-        /// The response is then an empty vector.
+        /// The first time a client calls this command it returns the values measured since 
+        /// the client connected. If the command is repeated very quickly, it may happen that 
+        /// there is no new data. The response is then an empty vector.
         /// </summary>
         /// <returns></returns>
         public async Task<float[]?> GetPlaybackSignalRmsSinceLast() => 
@@ -347,8 +351,10 @@ namespace CamillaDsp.Client
 
         /// <summary>
         /// Combined commands for reading several levels with a single request. 
-        /// These commands provide the same data as calling all the four commands in each of the groups above. 
-        /// The values are returned as a json object with keys playback_peak, playback_rms, capture_peak and capture_rms.
+        /// These commands provide the same data as calling all the four commands in each 
+        /// of the groups above. 
+        /// The values are returned as a json object with keys playback_peak, playback_rms, 
+        /// capture_peak and capture_rms.
         /// </summary>
         /// <returns></returns>
         public async Task<Signals?> GetSignalLevels() => 
@@ -356,8 +362,10 @@ namespace CamillaDsp.Client
 
         /// <summary>
         /// Combined commands for reading several levels with a single request. 
-        /// These commands provide the same data as calling all the four commands in each of the groups above. 
-        /// The values are returned as a json object with keys playback_peak, playback_rms, capture_peak and capture_rms.
+        /// These commands provide the same data as calling all the four commands in each 
+        /// of the groups above. 
+        /// The values are returned as a json object with keys playback_peak, playback_rms,
+        /// capture_peak and capture_rms.
         /// </summary>
         /// <returns></returns>
         public async Task<Signals?> GetSignalLevelsSince(float seconds) => 
@@ -365,8 +373,10 @@ namespace CamillaDsp.Client
 
         /// <summary>
         /// Combined commands for reading several levels with a single request. 
-        /// These commands provide the same data as calling all the four commands in each of the groups above. 
-        /// The values are returned as a json object with keys playback_peak, playback_rms, capture_peak and capture_rms.
+        /// These commands provide the same data as calling all the four commands in each 
+        /// of the groups above. 
+        /// The values are returned as a json object with keys playback_peak, playback_rms, 
+        /// capture_peak and capture_rms.
         /// </summary>
         /// <returns></returns>
         public async Task<Signals?> GetSignalLevelsSinceLast() => 
@@ -621,9 +631,9 @@ namespace CamillaDsp.Client
         public async Task SetConfigJson(string config) => await Send(Methods.SetConfigJson, config);
 
         /// <summary>
-        ///  Provide a new config as a JSON string. Applied directly.
+        ///  Provide a new config as a <see cref="DspConfig"/> object. Applied directly.
         /// </summary>
-        /// <param name="config"></param>
+        /// <param name="config"><see cref="DspConfig"/> object.</param>
         /// <returns></returns>
         public async Task SetConfigObject(DspConfig config)
         {
