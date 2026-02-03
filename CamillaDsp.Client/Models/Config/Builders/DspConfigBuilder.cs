@@ -11,14 +11,13 @@ namespace CamillaDsp.Client.Models.Config.Builders
 
         public readonly DspConfig DspConfig;
 
-        private DspConfigBuilder()
-        {
-            DspConfig = new();
-        }
-
         private DspConfigBuilder(DspConfig config)
         {
             DspConfig = config;
+        }
+
+        private DspConfigBuilder() : this(new())
+        {
         }
 
         /// <summary>
